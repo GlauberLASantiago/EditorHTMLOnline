@@ -4,356 +4,857 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlauWeb Html Editor</title>
-    <!-- Bibliotecas Necessárias -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #F7F4E9;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F6DFEB;
+            --border: #E4BAD4;
+            --text-primary: #2D2830;
+            --text-secondary: #756D79;
+            --accent: #C490D1;
+            --accent-light: #E4BAD4;
+            --accent-green: #A7D7C5;
+            --code-bg: #1E1B2E;
+            --code-text: #C3E88D;
+            --header-bg: #FFFFFF;
+            --toolbar-bg: #F6DFEB;
+            --footer-bg: #756D79;
+            --modal-bg: rgba(0,0,0,0.5);
+        }
+        .dark {
+            --bg-primary: #1A1625;
+            --bg-secondary: #221E30;
+            --bg-tertiary: #2D2840;
+            --border: #3D3550;
+            --text-primary: #E8E0F0;
+            --text-secondary: #A89BB8;
+            --accent: #C490D1;
+            --accent-light: #5D4A6E;
+            --accent-green: #6ABFA8;
+            --code-bg: #0F0D18;
+            --code-text: #C3E88D;
+            --header-bg: #1A1625;
+            --toolbar-bg: #2D2840;
+            --footer-bg: #0F0D18;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg-primary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E4BAD4; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C490D1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-        /* Estilos do Editor Visual */
         .editor-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; line-height: 1.2; }
         .editor-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; line-height: 1.2; }
         .editor-content h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; line-height: 1.2; }
-        .editor-content p { margin: 1em 0; line-height: 1.5; }
+        .editor-content p { margin: 1em 0; line-height: 1.6; }
         .editor-content ul { list-style-type: disc; padding-left: 40px; margin: 1em 0; }
         .editor-content ol { list-style-type: decimal; padding-left: 40px; margin: 1em 0; }
         .editor-content li { display: list-item; margin: 0.25em 0; }
         .editor-content a { color: #3b82f6; text-decoration: underline; }
-        
-        /* Reset para classes de sumário */
-        .editor-content .toc ol, .editor-content .toc ul, 
-        .editor-content .sumario ol, .editor-content .sumario ul { 
-            list-style-type: none !important; 
-            padding-left: 0 !important; 
+        .editor-content table { border-collapse: collapse; margin: 1em 0; width: 100%; }
+        .editor-content td, .editor-content th { border: 1px solid #ccc; padding: 6px 10px; }
+        .editor-content th { background: #f0f0f0; font-weight: bold; }
+        .editor-content .toc ol, .editor-content .toc ul,
+        .editor-content .sumario ol, .editor-content .sumario ul { list-style-type: none !important; padding-left: 0 !important; }
+        .editor-content blockquote { border-left: 4px solid var(--accent); padding-left: 16px; margin: 1em 0; font-style: italic; color: var(--text-secondary); }
+        .editor-content code { background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+        .editor-content pre { background: #1E1B2E; color: #C3E88D; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 1em 0; }
+        .editor-content hr { border: none; border-top: 2px solid var(--border); margin: 1.5em 0; }
+
+        .dark .editor-content th { background: #3D3550; color: #E8E0F0; }
+        .dark .editor-content td { border-color: #3D3550; }
+
+        textarea { font-family: 'JetBrains Mono', monospace !important; }
+
+        .toolbar-btn {
+            padding: 5px 7px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            transition: all 0.15s;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            white-space: nowrap;
+            font-family: 'Nunito', sans-serif;
+        }
+        .toolbar-btn:hover { background: var(--accent-light); color: var(--accent); }
+
+        .section-header {
+            padding: 7px 14px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: var(--modal-bg);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 520px; width: 90%;
+            max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .pill-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--accent); color: white;
+            padding: 2px 8px; border-radius: 999px;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'Nunito', sans-serif;
+        }
+        input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+        .step-num {
+            width: 24px; height: 24px;
+            background: var(--accent);
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+        .modal-box { animation: fadeIn 0.2s ease; }
+
+        .tooltip-wrapper { position: relative; }
+        .tooltip-wrapper:hover .tooltip-text {
+            opacity: 1; pointer-events: auto;
+        }
+        .tooltip-text {
+            position: absolute; bottom: calc(100% + 6px); left: 50%;
+            transform: translateX(-50%);
+            background: #2D2830; color: white;
+            font-size: 10px; padding: 4px 8px; border-radius: 4px;
+            white-space: nowrap; pointer-events: none; opacity: 0;
+            transition: opacity 0.15s; z-index: 99;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+<div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useRef, useEffect, useMemo } = React;
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback } = React;
 
-        // Ícones via Lucide
-        const Icon = ({ name, size = 16, className = "" }) => {
-            const ref = useRef(null);
-            useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons({
-                        attrs: { 
-                            class: className,
-                            width: size,
-                            height: size
-                        },
-                        nameAttr: 'data-lucide'
-                    });
-                }
-            }, [name, size, className]);
-            return <i data-lucide={name} className={className}></i>;
-        };
+const SVG = ({ d, size=16, className="" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    className={className}>
+    {Array.isArray(d) ? d.map((p,i) => <path key={i} d={p}/>) : <path d={d}/>}
+  </svg>
+);
 
-        const ToolbarButton = ({ icon, onClick, tooltip, label }) => (
-            <button 
-                onMouseDown={e => e.preventDefault()} 
-                onClick={onClick} 
-                title={tooltip}
-                className="p-1.5 flex items-center justify-center text-[#756D79] hover:bg-[#F6DFEB] hover:text-[#C490D1] rounded transition-colors focus:outline-none"
-            >
-                {icon}
-                {label && <span className="ml-1 text-[9px] font-bold uppercase">{label}</span>}
-            </button>
-        );
+const icons = {
+  code: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
+  undo: "M3 7v6h6M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13",
+  redo: "M21 7v6h-6M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7",
+  bold: "M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z",
+  italic: "M19 4h-9M14 20H5M15 4L9 20",
+  underline: "M6 3v7a6 6 0 006 6 6 6 0 006-6V3M4 21h16",
+  strike: "M17.3 12.3C17.75 11.3 18 10.17 18 9A6 6 0 006 9c0 1.17.25 2.3.7 3.3M3 12h18M7.7 15.7C8.94 17.1 10.37 18 12 18a5.97 5.97 0 004.3-1.7",
+  palette: "M12 2a10 10 0 100 20 4 4 0 004-4V14a2 2 0 012-2 2 2 0 110 0",
+  h1: ["M4 12h8M4 6v12M12 6v12","M17 12h4M21 6l-4 6 4 6"],
+  h2: ["M4 12h8M4 6v12M12 6v12","M16 8.3A2 2 0 0118 6h.5a2.5 2.5 0 012.5 2.5c0 1.5-1 3-3 4.5l-2 2h5"],
+  h3: ["M4 12h8M4 6v12M12 6v12","M16 7h4l-2 5h2a2 2 0 010 4h-4"],
+  alignL: "M3 6h18M3 12h12M3 18h15",
+  alignC: "M3 6h18M6 12h12M4 18h16",
+  alignR: "M3 6h18M9 12h12M6 18h15",
+  alignJ: "M3 6h18M3 12h18M3 18h18",
+  list: "M9 6h11M9 12h11M9 18h11M5 6v.01M5 12v.01M5 18v.01",
+  listOl: "M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h2M4 14h2a1 1 0 110 2H4a1 1 0 001 1v1M4 18h2",
+  link: "M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71",
+  image: "M21 15l-5-5L5 20M3 3h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V5a2 2 0 012-2zM9 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
+  table: "M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18",
+  save: "M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8",
+  open: "M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z",
+  monitor: "M2 3h20a2 2 0 012 2v14a2 2 0 01-2 2H2a2 2 0 01-2-2V5a2 2 0 012-2zM2 19h20M12 15v4M8 19h8",
+  phone: "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z",
+  moon: "M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z",
+  sun: "M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 6a6 6 0 000 12 6 6 0 000-12z",
+  help: "M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zM12 17h.01M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3",
+  eraser: "M20 20H7L3 16l10-10 7 7-3 3M6 14l4 4",
+  quote: "M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zM15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z",
+  hr: "M5 12h14",
+  music: "M9 18V5l12-2v13M9 18a3 3 0 100-6 3 3 0 000 6zM21 16a3 3 0 100-6 3 3 0 000 6z",
+  emoji: "M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zM8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01",
+  copy: "M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1",
+  close: "M18 6L6 18M6 6l12 12",
+  check: "M20 6L9 17l-5-5",
+  newfile: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M12 18v-6M9 15h6",
+};
 
-        function App() {
-            const [html, setHtml] = useState(
-`<div style="text-align: center; padding: 20px;">
-  <h1 style="color: #C490D1; font-family: sans-serif;">Bem-vindo ao GlauWeb</h1>
-  <p style="color: #756D79; font-size: 18px;">Comece a editar o <strong>texto</strong> ou o código HTML.</p>
+const Ico = ({ name, size=15, className="" }) => {
+  const d = icons[name];
+  if (!d) return null;
+  return <SVG d={d} size={size} className={className} />;
+};
+
+const Tip = ({ label, children }) => (
+  <div className="tooltip-wrapper">
+    {children}
+    <span className="tooltip-text">{label}</span>
+  </div>
+);
+
+const Btn = ({ icon, onClick, label, tooltip, active }) => (
+  <Tip label={tooltip || label || ""}>
+    <button
+      onMouseDown={e => e.preventDefault()}
+      onClick={onClick}
+      className={`toolbar-btn ${active ? 'bg-[color:var(--accent-light)] text-[color:var(--accent)]' : ''}`}
+      style={{ fontSize: 10, fontWeight: 700 }}
+    >
+      {icon && <Ico name={icon} size={14} />}
+      {label && <span style={{ marginLeft: icon ? 3 : 0 }}>{label}</span>}
+    </button>
+  </Tip>
+);
+
+const Sep = () => <div style={{ width:1, height:20, background:'var(--border)', margin:'0 4px', flexShrink:0 }} />;
+
+// ─── MODAL DE AJUDA ──────────────────────────────────────────────────────────
+const HelpModal = ({ onClose }) => (
+  <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+        <h2 style={{ fontSize:20, fontWeight:800, color:'var(--accent)' }}>📖 Como usar o GlauWeb Editor</h2>
+        <button onClick={onClose} className="toolbar-btn"><Ico name="close" size={18}/></button>
+      </div>
+
+      <p style={{ marginBottom:16, lineHeight:1.7, color:'var(--text-secondary)', fontSize:14 }}>
+        Este editor foi feito para você <strong style={{color:'var(--text-primary)'}}>colar código HTML gerado por uma IA</strong> e editá-lo facilmente, sem precisar saber programar.
+      </p>
+
+      {[
+        ["1", "Peça a uma IA (ChatGPT, Claude, etc.) para gerar um texto em HTML formatado — com título, parágrafos, listas, etc."],
+        ["2", "Copie o código HTML gerado pela IA."],
+        ["3", 'Cole na coluna esquerda <strong>📄 Código HTML</strong> — você verá o resultado ao vivo na direita.'],
+        ["4", 'Use a coluna do meio <strong>✏️ Editor Visual</strong> para fazer edições diretas no texto, sem tocar no código.'],
+        ["5", 'Na área de <strong>Preview</strong>, veja como ficará o resultado final. Alterne entre PC e Celular.'],
+        ["6", 'Quando estiver satisfeito, clique em <strong>💾 Salvar</strong> para baixar o arquivo .html com o nome que você escolher.'],
+      ].map(([n, text]) => (
+        <div key={n} style={{ display:'flex', gap:12, marginBottom:14, alignItems:'flex-start' }}>
+          <div className="step-num">{n}</div>
+          <p style={{ lineHeight:1.7, fontSize:13, color:'var(--text-secondary)', flex:1 }} dangerouslySetInnerHTML={{__html: text}} />
+        </div>
+      ))}
+
+      <div style={{ background:'var(--bg-tertiary)', borderRadius:10, padding:'12px 16px', marginTop:8, fontSize:13, lineHeight:1.7 }}>
+        <strong>💡 Dica:</strong> Use a barra de ferramentas do Editor Visual para negrito, itálico, cores, listas e muito mais — igual a um editor de texto comum!
+      </div>
+
+      <div style={{ marginTop:16, padding:'12px 16px', background:'rgba(196,144,209,0.12)', borderRadius:10, border:'1px solid var(--accent-light)', fontSize:13, lineHeight:1.7 }}>
+        <strong style={{color:'var(--accent)'}}>📂 Abrir arquivo:</strong> Use o botão <em>Abrir</em> no topo para carregar um arquivo <code>.html</code> ou <code>.txt</code> já existente no seu computador.
+      </div>
+
+      <button onClick={onClose} style={{
+        marginTop:20, width:'100%', padding:'10px', borderRadius:10,
+        background:'var(--accent)', color:'white', fontWeight:800, border:'none', cursor:'pointer', fontSize:14
+      }}>
+        <Ico name="check" size={14} /> Entendi, vamos começar!
+      </button>
+    </div>
+  </div>
+);
+
+// ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
+function App() {
+  const defaultHtml = `<div style="text-align:center; padding:30px 20px;">
+  <h1 style="color:#C490D1; font-family:'Nunito',sans-serif; font-size:2.2em; margin-bottom:10px;">
+    Bem-vindo ao GlauWeb Html Editor 🎨
+  </h1>
+  <p style="color:#756D79; font-size:1.1em; max-width:550px; margin:0 auto 20px; line-height:1.7;">
+    Cole aqui o código HTML gerado por uma IA, edite visualmente e salve como quiser.
+  </p>
+  <hr style="border:none; border-top:2px solid #E4BAD4; margin:20px auto; width:60%;">
 </div>
-<ul style="color: #756D79; font-family: sans-serif;">
-  <li>Coluna 1: Código Fonte puro</li>
-  <li>Coluna 2: Editor Visual rico</li>
-  <li>Coluna 3: Pré-visualização final</li>
-</ul>`
-            );
-            
-            const [device, setDevice] = useState('desktop');
-            const [fileName, setFileName] = useState('index');
-            const [savedRange, setSavedRange] = useState(null);
-            const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-            const [showMusicPicker, setShowMusicPicker] = useState(false);
-            const [showColorPicker, setShowColorPicker] = useState(false);
-            const [customColor, setCustomColor] = useState('');
-            const visualEditorRef = useRef(null);
-            const iframeRef = useRef(null);
+<div style="max-width:680px; margin:0 auto; padding:0 20px; font-family:'Nunito',sans-serif; color:#444;">
+  <h2 style="color:#C490D1;">Como começar?</h2>
+  <ul style="line-height:2; color:#756D79;">
+    <li>🤖 Peça a uma IA para gerar um texto em HTML</li>
+    <li>📋 Cole o código na coluna <strong>Código HTML</strong> (esquerda)</li>
+    <li>✏️ Edite visualmente na coluna do meio</li>
+    <li>👁️ Veja o resultado final na coluna <strong>Preview</strong></li>
+    <li>💾 Clique em <strong>Salvar</strong> para baixar seu arquivo</li>
+  </ul>
+  <blockquote style="border-left:4px solid #C490D1; padding-left:16px; color:#999; font-style:italic; margin:20px 0;">
+    "Clique em ❓ Ajuda no topo para ver as instruções completas."
+  </blockquote>
+</div>`;
 
-            const emojisComuns = ['😀', '😂', '🥰', '😎', '🤔', '👍', '👎', '🙌', '🔥', '✨', '⭐', '❤️', '💡', '✅', '❌'];
-            const emojisMusicais = ['🎵', '🎶', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻', '🎤', '🎧', '📻', '👩‍🎤', '👨‍🎤'];
-            const simbolosMusicais = ['♩', '♪', '♫', '♬', '♭', '♮', '♯', '𝄪', '𝄫', '𝄞', '𝄢', '𝄡', '𝄀', '𝄁', '𝄂', '𝄃', '𝄄', '𝄅', '𝄆', '𝄇', '𝄐', '𝄑', '𝄽', '𝄾', '𝄿', '𝅀', '𝅁', '𝅂', '𝅃', '𝅄', '𝅅', '𝅝', '𝅗𝅥', '𝅘𝅥', '𝅘𝅥𝅮', '𝅘𝅥𝅯', '𝅘𝅥𝅰', '𝅘𝅥𝅱', '𝅘𝅥𝅲', '𝆏', '𝆑', '𝆎', '𝆍', '𝆌', '𝆖', '𝆗', '𝆘', '𝆙'];
+  const [html, setHtml] = useState(defaultHtml);
+  const [dark, setDark] = useState(false);
+  const [device, setDevice] = useState('desktop');
+  const [fileName, setFileName] = useState('index');
+  const [savedRange, setSavedRange] = useState(null);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [showMusic, setShowMusic] = useState(false);
+  const [showBgColor, setShowBgColor] = useState(false);
+  const [customColor, setCustomColor] = useState('');
+  const [customBg, setCustomBg] = useState('');
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [activeTab, setActiveTab] = useState('code'); // 'code' | 'visual' (mobile)
+  const visualRef = useRef(null);
+  const iframeRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const isUpdatingVisual = useRef(false);
 
-            const paletas = [
-                { titulo: 'GlauWeb', grid: 'grid-cols-6', cores: ['#A7D7C5', '#F7F4E9', '#F6DFEB', '#E4BAD4', '#C490D1', '#756D79'] },
-                { titulo: 'Padrão', grid: 'grid-cols-8', cores: ['#000000', '#434343', '#666666', '#999999', '#CCCCCC', '#FFFFFF', '#FF0000', '#FF9900', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#9900FF', '#FF00FF'] }
-            ];
+  // Tema escuro
+  useEffect(() => {
+    document.body.classList.toggle('dark', dark);
+    document.documentElement.classList.toggle('dark', dark);
+  }, [dark]);
 
-            // Sincronização do Preview via Iframe Document Write
-            useEffect(() => {
-                const iframe = iframeRef.current;
-                if (iframe) {
-                    const doc = iframe.contentDocument || iframe.contentWindow.document;
-                    const content = `
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="utf-8">
-                            <style>
-                                body { margin: 0; font-family: sans-serif; word-wrap: break-word; padding: 1rem; color: #333; }
-                                .toc ol, .toc ul, .sumario ol, .sumario ul { list-style-type: none !important; padding-left: 0 !important; }
-                                a { color: #3b82f6; }
-                            </style>
-                        </head>
-                        <body>${html}</body>
-                        </html>
-                    `;
-                    doc.open();
-                    doc.write(content);
-                    doc.close();
-                }
-            }, [html]);
+  // Atualiza iframe
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+      <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>
+        body { margin:0; font-family:'Nunito',sans-serif; word-wrap:break-word; padding:1rem; color:#333; background:${dark?'#1E1B2E':'#fff'}; }
+        ${dark ? '* { color: #E8E0F0 !important; } a { color: #C490D1 !important; }' : ''}
+        .toc ol,.toc ul,.sumario ol,.sumario ul{list-style:none!important;padding-left:0!important}
+        a{color:#3b82f6} table{border-collapse:collapse;width:100%} td,th{border:1px solid #ccc;padding:6px 10px}
+        blockquote{border-left:4px solid #C490D1;padding-left:16px;margin:1em 0;color:#888;font-style:italic}
+      </style>
+    </head><body>${html}</body></html>`);
+    doc.close();
+  }, [html, dark]);
 
-            // Sincronização do Editor Visual quando o HTML muda externamente
-            useEffect(() => {
-                if (visualEditorRef.current && visualEditorRef.current.innerHTML !== html) {
-                    visualEditorRef.current.innerHTML = html;
-                }
-            }, [html]);
+  // Atualiza editor visual quando html muda externamente
+  useEffect(() => {
+    if (!visualRef.current) return;
+    if (isUpdatingVisual.current) return;
+    if (visualRef.current.innerHTML !== html) {
+      visualRef.current.innerHTML = html;
+    }
+  }, [html]);
 
-            const handleVisualChange = () => {
-                if (visualEditorRef.current) {
-                    setHtml(visualEditorRef.current.innerHTML);
-                }
-            };
+  const handleVisualChange = () => {
+    if (visualRef.current) {
+      isUpdatingVisual.current = true;
+      setHtml(visualRef.current.innerHTML);
+      setTimeout(() => { isUpdatingVisual.current = false; }, 10);
+    }
+  };
 
-            const saveSelection = () => {
-                const sel = window.getSelection();
-                if (sel.rangeCount > 0 && visualEditorRef.current?.contains(sel.anchorNode)) {
-                    setSavedRange(sel.getRangeAt(0));
-                }
-            };
+  const saveRange = () => {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0 && visualRef.current?.contains(sel.anchorNode)) {
+      setSavedRange(sel.getRangeAt(0).cloneRange());
+    }
+  };
 
-            const restoreSelection = () => {
-                if (savedRange) {
-                    const sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(savedRange);
-                }
-                visualEditorRef.current?.focus();
-            };
+  const restoreRange = () => {
+    if (savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+    }
+    visualRef.current?.focus();
+  };
 
-            const execCommand = (cmd, val = null) => {
-                restoreSelection();
-                document.execCommand(cmd, false, val);
-                handleVisualChange();
-                saveSelection();
-            };
+  const exec = (cmd, val=null) => {
+    restoreRange();
+    document.execCommand(cmd, false, val);
+    handleVisualChange();
+    saveRange();
+  };
 
-            const handleFormatParagraph = () => {
-                restoreSelection();
-                const sel = window.getSelection();
-                if (sel.rangeCount > 0) {
-                    let node = sel.anchorNode;
-                    if (node?.nodeType === 3) node = node.parentNode;
-                    const list = node?.closest('ul, ol');
-                    if (list) {
-                        const cmd = list.tagName === 'UL' ? 'insertUnorderedList' : 'insertOrderedList';
-                        document.execCommand(cmd, false, null);
-                    }
-                }
-                document.execCommand('formatBlock', false, 'p');
-                handleVisualChange();
-            };
+  const handleInsertEmoji = (ch) => {
+    restoreRange();
+    document.execCommand('insertText', false, ch);
+    handleVisualChange();
+    setShowEmoji(false);
+    setShowMusic(false);
+  };
 
-            const handleInsertLink = () => {
-                const url = prompt('URL:', 'https://');
-                if (url) execCommand('createLink', url);
-            };
+  const handleColor = (c) => { document.execCommand('styleWithCSS', false, true); exec('foreColor', c); setShowColorPicker(false); };
+  const handleBgColor = (c) => { document.execCommand('styleWithCSS', false, true); exec('hiliteColor', c); setShowBgColor(false); };
 
-            const handleInsertEmoji = (emoji) => {
-                restoreSelection();
-                document.execCommand('insertText', false, emoji);
-                handleVisualChange();
-                setShowEmojiPicker(false);
-                setShowMusicPicker(false);
-            };
+  const handleLink = () => { const u = prompt('URL do link:', 'https://'); if (u) exec('createLink', u); };
 
-            const handleColor = (color) => {
-                document.execCommand('styleWithCSS', false, true);
-                execCommand('foreColor', color);
-                setShowColorPicker(false);
-            };
+  const handleInsertImage = () => {
+    const url = prompt('URL da imagem:', 'https://');
+    if (url) exec('insertHTML', `<img src="${url}" style="max-width:100%; height:auto;" alt="imagem"/>`);
+  };
 
-            const handleSave = () => {
-                const blob = new Blob([html], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${fileName || 'index'}.html`;
-                a.click();
-            };
+  const handleInsertTable = () => {
+    exec('insertHTML', `<table><thead><tr><th>Coluna 1</th><th>Coluna 2</th><th>Coluna 3</th></tr></thead><tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table>`);
+  };
 
-            return (
-                <div className="h-screen w-full flex flex-col bg-[#F7F4E9] text-[#756D79] font-sans overflow-hidden">
-                    <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-3 bg-white border-b border-[#E4BAD4] shadow-sm z-10 gap-4 sm:gap-0">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-[#C490D1] p-2 rounded-lg text-white">
-                                <Icon name="code-2" size={24} />
-                            </div>
-                            <h1 className="text-xl font-bold tracking-tight">GlauWeb <span className="text-[#C490D1]">Html Editor</span></h1>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center bg-[#F7F4E9] border border-[#E4BAD4] rounded-md overflow-hidden">
-                                <input value={fileName} onChange={e => setFileName(e.target.value)} className="bg-transparent px-3 py-1.5 text-sm outline-none w-32" />
-                                <span className="px-2 py-1.5 bg-[#F6DFEB] text-xs font-bold">.html</span>
-                            </div>
-                            <button onClick={handleSave} className="bg-[#A7D7C5] px-4 py-1.5 rounded-md font-bold flex items-center gap-2 shadow-sm">
-                                <Icon name="save" size={18} /> Salvar
-                            </button>
-                        </div>
-                    </header>
+  const handleInsertHR = () => exec('insertHTML', '<hr/>');
 
-                    <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                        {/* Código */}
-                        <section className="flex-1 flex flex-col border-r border-[#E4BAD4] bg-gray-900">
-                            <div className="px-4 py-2 bg-[#756D79] text-[#F7F4E9] text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                                <Icon name="code-2" size={14} className="text-[#A7D7C5]"/> Código HTML
-                            </div>
-                            <textarea 
-                                value={html} 
-                                onChange={e => setHtml(e.target.value)}
-                                className="flex-1 w-full p-4 font-mono text-sm bg-gray-900 text-[#A7D7C5] outline-none resize-none custom-scrollbar"
-                            />
-                        </section>
+  const handleInsertBlockquote = () => {
+    restoreRange();
+    document.execCommand('formatBlock', false, 'blockquote');
+    handleVisualChange();
+  };
 
-                        {/* Editor */}
-                        <section className="flex-[1.5] flex flex-col bg-white border-r border-[#E4BAD4] lg:w-[45%]">
-                            <div className="p-2 bg-[#F6DFEB] border-b border-[#E4BAD4] flex flex-wrap gap-1 items-center shadow-sm">
-                                <ToolbarButton icon={<Icon name="undo" size={16}/>} onClick={() => execCommand('undo')} />
-                                <ToolbarButton icon={<Icon name="redo" size={16}/>} onClick={() => execCommand('redo')} />
-                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
-                                
-                                <select onChange={e => execCommand('fontName', e.target.value)} className="text-[10px] p-1 border rounded bg-[#F7F4E9]">
-                                    <option value="">Fonte</option>
-                                    <option value="Arial">Arial</option>
-                                    <option value="Times New Roman">Times</option>
-                                    <option value="Verdana">Verdana</option>
-                                </select>
+  const handleSave = () => {
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${fileName || 'index'}.html`; a.click();
+    URL.revokeObjectURL(url);
+  };
 
-                                <select onChange={e => execCommand('fontSize', e.target.value)} className="text-[10px] p-1 border rounded bg-[#F7F4E9] w-12">
-                                    <option value="">Tam</option>
-                                    {[1,2,3,4,5,6,7].map(n => <option key={n} value={n}>{n}</option>)}
-                                </select>
+  const handleNew = () => {
+    if (confirm('Criar novo documento? O conteúdo atual será perdido.')) {
+      setHtml('<h1>Novo Documento</h1><p>Comece a digitar aqui...</p>');
+      setFileName('index');
+    }
+  };
 
-                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
-                                <ToolbarButton icon={<Icon name="bold" size={16}/>} onClick={() => execCommand('bold')} />
-                                <ToolbarButton icon={<Icon name="italic" size={16}/>} onClick={() => execCommand('italic')} />
-                                <ToolbarButton icon={<Icon name="underline" size={16}/>} onClick={() => execCommand('underline')} />
+  const handleOpen = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const content = ev.target.result;
+      if (file.name.endsWith('.txt')) {
+        const escaped = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+        setHtml(`<pre style="white-space:pre-wrap;font-family:sans-serif;">${escaped}</pre>`);
+      } else {
+        // Extrair body se for HTML completo
+        const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        setHtml(bodyMatch ? bodyMatch[1] : content);
+      }
+      const ext = file.name.lastIndexOf('.');
+      setFileName(ext > 0 ? file.name.substring(0, ext) : file.name);
+    };
+    reader.readAsText(file, 'UTF-8');
+    e.target.value = '';
+  };
 
-                                <div className="relative">
-                                    <ToolbarButton icon={<Icon name="palette" size={16}/>} onClick={() => { saveSelection(); setShowColorPicker(!showColorPicker); }} />
-                                    {showColorPicker && (
-                                        <div className="absolute top-full left-0 mt-1 bg-white border p-3 rounded-lg shadow-xl z-50 w-64">
-                                            {paletas.map((p, i) => (
-                                                <div key={i} className="mb-2">
-                                                    <p className="text-[10px] font-bold mb-1 uppercase">{p.titulo}</p>
-                                                    <div className={`grid ${p.grid} gap-1`}>
-                                                        {p.cores.map(c => <button key={c} onClick={() => handleColor(c)} className="w-full aspect-square border" style={{backgroundColor: c}} />)}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <div className="flex gap-1 mt-2 border-t pt-2">
-                                                <input value={customColor} onChange={e => setCustomColor(e.target.value)} className="flex-1 text-[10px] border p-1" placeholder="#HEX" />
-                                                <button onClick={() => handleColor(customColor)} className="bg-[#C490D1] text-white text-[10px] px-2 rounded">OK</button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(html).then(() => {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    });
+  };
 
-                                <ToolbarButton icon={<Icon name="eraser" size={16}/>} onClick={() => execCommand('removeFormat')} label="LIMPAR" />
-                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
+  const formatCode = () => {
+    try {
+      // Formatação básica: adiciona quebras de linha após tags
+      let formatted = html
+        .replace(/></g, '>\n<')
+        .replace(/(<\/[a-zA-Z]+>)/g, '$1\n')
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l)
+        .join('\n');
+      setHtml(formatted);
+    } catch {}
+  };
 
-                                <ToolbarButton icon={<span className="font-bold">P</span>} onClick={handleFormatParagraph} label="NORMAL" />
-                                <ToolbarButton icon={<Icon name="heading-1" size={16}/>} onClick={() => execCommand('formatBlock', 'h1')} />
-                                <ToolbarButton icon={<Icon name="heading-2" size={16}/>} onClick={() => execCommand('formatBlock', 'h2')} />
+  const paletas = [
+    { titulo: 'GlauWeb', cores: ['#A7D7C5','#F7F4E9','#F6DFEB','#E4BAD4','#C490D1','#756D79'] },
+    { titulo: 'Básicas', cores: ['#000000','#333333','#666666','#999999','#CCCCCC','#FFFFFF'] },
+    { titulo: 'Cores', cores: ['#FF4444','#FF9900','#FFFF00','#44BB44','#4444FF','#9900FF','#FF00FF','#00BBBB'] },
+    { titulo: 'Pastéis', cores: ['#FFB3BA','#FFDFBA','#FFFFBA','#BAFFC9','#BAE1FF','#D4BAFF'] },
+  ];
 
-                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
-                                <ToolbarButton icon={<Icon name="align-left" size={16}/>} onClick={() => execCommand('justifyLeft')} />
-                                <ToolbarButton icon={<Icon name="align-center" size={16}/>} onClick={() => execCommand('justifyCenter')} />
-                                <ToolbarButton icon={<Icon name="align-justify" size={16}/>} onClick={() => execCommand('justifyFull')} />
-                                
-                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
-                                <ToolbarButton icon={<Icon name="list" size={16}/>} onClick={() => execCommand('insertUnorderedList')} />
-                                <ToolbarButton icon={<Icon name="list-ordered" size={16}/>} onClick={() => execCommand('insertOrderedList')} />
-                                
-                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
-                                <ToolbarButton icon={<Icon name="link" size={16}/>} onClick={handleInsertLink} />
-                                
-                                <div className="relative">
-                                    <ToolbarButton icon={<Icon name="music" size={16}/>} onClick={() => { saveSelection(); setShowMusicPicker(!showMusicPicker); }} />
-                                    {showMusicPicker && (
-                                        <div className="absolute top-full right-0 mt-1 bg-white border p-2 rounded shadow-xl z-50 w-64 max-h-48 overflow-y-auto grid grid-cols-6 gap-1 custom-scrollbar">
-                                            {simbolosMusicais.map((s, i) => <button key={i} onClick={() => { handleInsertEmoji(s); }} className="hover:bg-gray-100 p-1 text-lg">{s}</button>)}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                            <div 
-                                ref={visualEditorRef}
-                                contentEditable 
-                                onInput={handleVisualChange}
-                                onMouseUp={saveSelection}
-                                onKeyUp={saveSelection}
-                                className="flex-1 p-8 outline-none editor-content custom-scrollbar overflow-auto"
-                                suppressContentEditableWarning={true}
-                            />
-                        </section>
+  const emojis = ['😀','😂','🥰','😎','🤔','😍','🤩','😢','😡','👍','👎','🙌','❤️','💛','💜','🔥','✨','⭐','💡','✅','❌','🎉','🎊','🏆','📚','💻','🌟','🌈','🌸','🍀'];
+  const musicSymbols = ['♩','♪','♫','♬','♭','♮','♯','𝄞','𝄢','𝄡','𝄀','𝄁','𝅘𝅥𝅮','𝅘𝅥𝅯','𝆏','𝆑','🎵','🎶','🎼','🎹','🥁','🎷','🎺','🎸','🎤','🎧'];
 
-                        {/* Preview */}
-                        <section className="flex-1 flex flex-col bg-[#F7F4E9]">
-                            <div className="px-4 py-2 bg-white border-b border-[#E4BAD4] flex justify-between items-center">
-                                <div className="text-xs font-bold uppercase flex items-center gap-2"><Icon name="monitor-play" size={14}/> Preview</div>
-                                <div className="flex bg-[#F7F4E9] p-0.5 rounded border border-[#E4BAD4]">
-                                    <button onClick={() => setDevice('desktop')} className={`px-2 py-1 text-[10px] font-bold rounded ${device === 'desktop' ? 'bg-[#C490D1] text-white' : ''}`}>PC</button>
-                                    <button onClick={() => setDevice('mobile')} className={`px-2 py-1 text-[10px] font-bold rounded ${device === 'mobile' ? 'bg-[#C490D1] text-white' : ''}`}>CEL</button>
-                                </div>
-                            </div>
-                            <div className="flex-1 flex justify-center p-6 overflow-auto custom-scrollbar">
-                                <div className={`transition-all duration-500 bg-white shadow-xl ${device === 'mobile' ? 'w-[340px] h-[600px] border-[12px] border-[#756D79] rounded-[2.5rem]' : 'w-full h-full border border-[#E4BAD4] rounded'}`}>
-                                    <iframe ref={iframeRef} className="w-full h-full border-0" title="preview" />
-                                </div>
-                            </div>
-                        </section>
-                    </main>
+  const ColorPopup = ({ onClose, onColor, showBg }) => (
+    <div style={{
+      position:'absolute', top:'calc(100% + 6px)', left:0,
+      background:'var(--bg-secondary)', border:'1px solid var(--border)',
+      borderRadius:12, padding:14, zIndex:200,
+      boxShadow:'0 8px 32px rgba(0,0,0,0.2)', minWidth:220
+    }}>
+      {paletas.map((p, i) => (
+        <div key={i} style={{ marginBottom: 8 }}>
+          <p style={{ fontSize:9, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--text-secondary)', marginBottom:4 }}>{p.titulo}</p>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:3 }}>
+            {p.cores.map(c => (
+              <button key={c} onMouseDown={e=>e.preventDefault()} onClick={() => onColor(c)}
+                style={{ width:'100%', aspectRatio:'1', borderRadius:4, background:c, border:'1px solid rgba(0,0,0,0.1)', cursor:'pointer' }} />
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{ display:'flex', gap:6, marginTop:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
+        <input value={customColor} onChange={e=>setCustomColor(e.target.value)}
+          style={{ flex:1, fontSize:11, padding:'4px 8px', borderRadius:6 }} placeholder="#HEX" />
+        <button onClick={() => onColor(customColor)}
+          style={{ background:'var(--accent)', color:'white', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, fontWeight:700, cursor:'pointer' }}>OK</button>
+      </div>
+    </div>
+  );
 
-                    <footer className="bg-[#756D79] text-[#F7F4E9] py-2 px-6 flex justify-between items-center text-[10px]">
-                        <p>Desenvolvido pelo professor Glauber Santiago — DAC/UFSCar</p>
-                        <div className="flex gap-4">
-                            <a href="https://servidores.ufscar.br/glauber/" target="_blank">servidores.ufscar.br/glauber/</a>
-                            <a href="https://sites.google.com/view/glauberia" target="_blank">sites.google.com/view/glauberia</a>
-                        </div>
-                    </footer>
+  return (
+    <div style={{ height:'100vh', display:'flex', flexDirection:'column', background:'var(--bg-primary)', color:'var(--text-primary)', overflow:'hidden' }}>
+
+      {/* HEADER */}
+      <header style={{
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        padding:'8px 18px', background:'var(--header-bg)',
+        borderBottom:'1px solid var(--border)', boxShadow:'0 2px 8px rgba(0,0,0,0.06)',
+        flexWrap:'wrap', gap:8, zIndex:10
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ background:'var(--accent)', padding:'6px 8px', borderRadius:10, color:'white', display:'flex' }}>
+            <Ico name="code" size={20} />
+          </div>
+          <div>
+            <h1 style={{ fontSize:18, fontWeight:800, letterSpacing:'-0.02em', lineHeight:1.1 }}>
+              GlauWeb <span style={{ color:'var(--accent)' }}>Html Editor</span>
+            </h1>
+            <p style={{ fontSize:10, color:'var(--text-secondary)', fontWeight:600 }}>Editor para leigos • Cole, edite e salve</p>
+          </div>
+        </div>
+
+        <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+          {/* Abrir */}
+          <input ref={fileInputRef} type="file" accept=".html,.htm,.txt" onChange={handleOpen} style={{ display:'none' }} />
+          <button onClick={() => fileInputRef.current?.click()}
+            style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', border:'1px solid var(--border)', borderRadius:8, background:'var(--bg-tertiary)', cursor:'pointer', fontSize:12, fontWeight:700, color:'var(--text-secondary)' }}>
+            <Ico name="open" size={14}/> Abrir
+          </button>
+
+          {/* Novo */}
+          <button onClick={handleNew}
+            style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', border:'1px solid var(--border)', borderRadius:8, background:'var(--bg-tertiary)', cursor:'pointer', fontSize:12, fontWeight:700, color:'var(--text-secondary)' }}>
+            <Ico name="newfile" size={14}/> Novo
+          </button>
+
+          {/* Nome do arquivo */}
+          <div style={{ display:'flex', alignItems:'center', border:'1px solid var(--border)', borderRadius:8, overflow:'hidden', background:'var(--bg-primary)' }}>
+            <input value={fileName} onChange={e=>setFileName(e.target.value)}
+              style={{ padding:'6px 10px', fontSize:12, border:'none', background:'transparent', width:120, color:'var(--text-primary)' }}
+              placeholder="nome-do-arquivo" />
+            <span style={{ padding:'6px 8px', background:'var(--bg-tertiary)', fontSize:11, fontWeight:800, color:'var(--accent)', borderLeft:'1px solid var(--border)' }}>.html</span>
+          </div>
+
+          {/* Salvar */}
+          <button onClick={handleSave}
+            style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:8, background:'var(--accent-green)', border:'none', cursor:'pointer', fontSize:13, fontWeight:800, color:'var(--text-primary)', boxShadow:'0 2px 8px rgba(167,215,197,0.4)' }}>
+            <Ico name="save" size={15}/> Salvar
+          </button>
+
+          {/* Tema */}
+          <Tip label={dark ? 'Tema claro' : 'Tema escuro'}>
+            <button onClick={() => setDark(!dark)}
+              style={{ padding:'7px', borderRadius:8, border:'1px solid var(--border)', background:'var(--bg-tertiary)', cursor:'pointer', display:'flex', color:'var(--accent)' }}>
+              <Ico name={dark ? 'sun' : 'moon'} size={15} />
+            </button>
+          </Tip>
+
+          {/* Ajuda */}
+          <button onClick={() => setShowHelp(true)}
+            style={{ padding:'6px 11px', borderRadius:8, border:'1px solid var(--accent-light)', background:'rgba(196,144,209,0.12)', cursor:'pointer', display:'flex', alignItems:'center', gap:5, color:'var(--accent)', fontSize:12, fontWeight:700 }}>
+            <Ico name="help" size={14}/> Ajuda
+          </button>
+        </div>
+      </header>
+
+      {/* MAIN */}
+      <main style={{ flex:1, display:'flex', overflow:'hidden', minHeight:0 }}>
+
+        {/* ── COL 1: CÓDIGO ── */}
+        <section style={{ flex:1, display:'flex', flexDirection:'column', borderRight:'1px solid var(--border)', minWidth:0 }}>
+          <div className="section-header" style={{ justifyContent:'space-between' }}>
+            <span style={{ display:'flex', alignItems:'center', gap:6 }}><Ico name="code" size={13}/> Código HTML</span>
+            <div style={{ display:'flex', gap:4 }}>
+              <Tip label="Copiar código">
+                <button onMouseDown={e=>e.preventDefault()} onClick={handleCopyCode}
+                  className="toolbar-btn" style={{ fontSize:10, padding:'3px 7px', gap:4, display:'flex', alignItems:'center' }}>
+                  <Ico name={copiedCode ? 'check' : 'copy'} size={12}/>
+                  {copiedCode ? 'Copiado!' : 'Copiar'}
+                </button>
+              </Tip>
+              <Tip label="Formatar / indentar">
+                <button onMouseDown={e=>e.preventDefault()} onClick={formatCode}
+                  className="toolbar-btn" style={{ fontSize:10, padding:'3px 7px' }}>Formatar</button>
+              </Tip>
+            </div>
+          </div>
+          <textarea
+            value={html}
+            onChange={e => setHtml(e.target.value)}
+            spellCheck={false}
+            className="custom-scrollbar"
+            style={{
+              flex:1, width:'100%', padding:16,
+              fontSize:12, lineHeight:1.7,
+              background:'var(--code-bg)', color:'var(--code-text)',
+              outline:'none', resize:'none', border:'none',
+              fontFamily:"'JetBrains Mono', monospace",
+            }}
+          />
+        </section>
+
+        {/* ── COL 2: EDITOR VISUAL ── */}
+        <section style={{ flex:'1.4', display:'flex', flexDirection:'column', background:'var(--bg-secondary)', borderRight:'1px solid var(--border)', minWidth:0 }}>
+          {/* Toolbar */}
+          <div style={{
+            padding:'6px 8px', background:'var(--toolbar-bg)',
+            borderBottom:'1px solid var(--border)',
+            display:'flex', flexWrap:'wrap', gap:2, alignItems:'center'
+          }}>
+            <Btn icon="undo" onClick={() => exec('undo')} tooltip="Desfazer (Ctrl+Z)" />
+            <Btn icon="redo" onClick={() => exec('redo')} tooltip="Refazer (Ctrl+Y)" />
+            <Sep/>
+
+            {/* Fonte */}
+            <Tip label="Fonte">
+              <select onMouseDown={e=>e.stopPropagation()} onChange={e => exec('fontName', e.target.value)}
+                style={{ fontSize:11, padding:'4px 6px', height:28, borderRadius:6, minWidth:90 }}>
+                <option value="">Fonte</option>
+                {['Arial','Georgia','Times New Roman','Verdana','Courier New','Trebuchet MS','Impact'].map(f => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </Tip>
+
+            {/* Tamanho */}
+            <Tip label="Tamanho">
+              <select onMouseDown={e=>e.stopPropagation()} onChange={e => exec('fontSize', e.target.value)}
+                style={{ fontSize:11, padding:'4px 6px', height:28, borderRadius:6, width:52 }}>
+                <option value="">Tam</option>
+                {[1,2,3,4,5,6,7].map(n=><option key={n} value={n}>{n}</option>)}
+              </select>
+            </Tip>
+            <Sep/>
+
+            <Btn icon="bold" onClick={() => exec('bold')} tooltip="Negrito (Ctrl+B)" />
+            <Btn icon="italic" onClick={() => exec('italic')} tooltip="Itálico (Ctrl+I)" />
+            <Btn icon="underline" onClick={() => exec('underline')} tooltip="Sublinhado (Ctrl+U)" />
+            <Btn icon="strike" onClick={() => exec('strikeThrough')} tooltip="Tachado" />
+
+            {/* Cor texto */}
+            <div style={{ position:'relative' }}>
+              <Tip label="Cor do texto">
+                <button onMouseDown={e=>e.preventDefault()} onClick={() => { saveRange(); setShowColorPicker(!showColorPicker); setShowBgColor(false); setShowEmoji(false); setShowMusic(false); }}
+                  className="toolbar-btn">
+                  <Ico name="palette" size={14}/>
+                  <span style={{ fontSize:9, marginLeft:2 }}>T</span>
+                </button>
+              </Tip>
+              {showColorPicker && <ColorPopup onClose={() => setShowColorPicker(false)} onColor={handleColor} />}
+            </div>
+
+            {/* Cor fundo */}
+            <div style={{ position:'relative' }}>
+              <Tip label="Cor de fundo / destaque">
+                <button onMouseDown={e=>e.preventDefault()} onClick={() => { saveRange(); setShowBgColor(!showBgColor); setShowColorPicker(false); setShowEmoji(false); setShowMusic(false); }}
+                  className="toolbar-btn">
+                  <Ico name="palette" size={14}/>
+                  <span style={{ fontSize:9, marginLeft:2 }}>BG</span>
+                </button>
+              </Tip>
+              {showBgColor && <ColorPopup onClose={() => setShowBgColor(false)} onColor={handleBgColor} showBg />}
+            </div>
+
+            <Btn icon="eraser" onClick={() => exec('removeFormat')} tooltip="Remover formatação" />
+            <Sep/>
+
+            <Btn icon="h1" onClick={() => exec('formatBlock','h1')} tooltip="Título 1" />
+            <Btn icon="h2" onClick={() => exec('formatBlock','h2')} tooltip="Título 2" />
+            <Btn icon="h3" onClick={() => exec('formatBlock','h3')} tooltip="Título 3" />
+            <Tip label="Parágrafo normal">
+              <button onMouseDown={e=>e.preventDefault()} onClick={() => exec('formatBlock','p')}
+                className="toolbar-btn" style={{ fontSize:11, fontWeight:700 }}>P</button>
+            </Tip>
+            <Sep/>
+
+            <Btn icon="alignL" onClick={() => exec('justifyLeft')} tooltip="Alinhar à esquerda" />
+            <Btn icon="alignC" onClick={() => exec('justifyCenter')} tooltip="Centralizar" />
+            <Btn icon="alignR" onClick={() => exec('justifyRight')} tooltip="Alinhar à direita" />
+            <Btn icon="alignJ" onClick={() => exec('justifyFull')} tooltip="Justificar" />
+            <Sep/>
+
+            <Btn icon="list" onClick={() => exec('insertUnorderedList')} tooltip="Lista com marcadores" />
+            <Btn icon="listOl" onClick={() => exec('insertOrderedList')} tooltip="Lista numerada" />
+            <Btn icon="quote" onClick={handleInsertBlockquote} tooltip="Citação / destaque" />
+            <Btn icon="hr" onClick={handleInsertHR} tooltip="Linha separadora" />
+            <Sep/>
+
+            <Btn icon="link" onClick={handleLink} tooltip="Inserir link" />
+            <Btn icon="image" onClick={handleInsertImage} tooltip="Inserir imagem (URL)" />
+            <Btn icon="table" onClick={handleInsertTable} tooltip="Inserir tabela" />
+            <Sep/>
+
+            {/* Emojis */}
+            <div style={{ position:'relative' }}>
+              <Tip label="Emojis">
+                <button onMouseDown={e=>e.preventDefault()} onClick={() => { saveRange(); setShowEmoji(!showEmoji); setShowMusic(false); setShowColorPicker(false); setShowBgColor(false); }}
+                  className="toolbar-btn">
+                  <Ico name="emoji" size={14}/>
+                </button>
+              </Tip>
+              {showEmoji && (
+                <div style={{
+                  position:'absolute', top:'calc(100% + 6px)', left:0,
+                  background:'var(--bg-secondary)', border:'1px solid var(--border)',
+                  borderRadius:12, padding:10, zIndex:200,
+                  boxShadow:'0 8px 32px rgba(0,0,0,0.2)',
+                  display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:4, width:210
+                }}>
+                  {emojis.map((em, i) => (
+                    <button key={i} onClick={() => handleInsertEmoji(em)}
+                      style={{ fontSize:18, padding:4, borderRadius:6, border:'none', background:'transparent', cursor:'pointer' }}
+                      onMouseEnter={e => e.target.style.background='var(--bg-tertiary)'}
+                      onMouseLeave={e => e.target.style.background='transparent'}>
+                      {em}
+                    </button>
+                  ))}
                 </div>
-            );
-        }
+              )}
+            </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+            {/* Símbolos musicais */}
+            <div style={{ position:'relative' }}>
+              <Tip label="Símbolos musicais">
+                <button onMouseDown={e=>e.preventDefault()} onClick={() => { saveRange(); setShowMusic(!showMusic); setShowEmoji(false); setShowColorPicker(false); setShowBgColor(false); }}
+                  className="toolbar-btn">
+                  <Ico name="music" size={14}/>
+                </button>
+              </Tip>
+              {showMusic && (
+                <div style={{
+                  position:'absolute', top:'calc(100% + 6px)', right:0,
+                  background:'var(--bg-secondary)', border:'1px solid var(--border)',
+                  borderRadius:12, padding:10, zIndex:200,
+                  boxShadow:'0 8px 32px rgba(0,0,0,0.2)',
+                  display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:4, width:200,
+                  maxHeight:180, overflowY:'auto'
+                }} className="custom-scrollbar">
+                  {musicSymbols.map((s, i) => (
+                    <button key={i} onClick={() => handleInsertEmoji(s)}
+                      style={{ fontSize:16, padding:4, borderRadius:6, border:'none', background:'transparent', cursor:'pointer' }}
+                      onMouseEnter={e => e.target.style.background='var(--bg-tertiary)'}
+                      onMouseLeave={e => e.target.style.background='transparent'}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Área de edição */}
+          <div
+            ref={visualRef}
+            contentEditable
+            onInput={handleVisualChange}
+            onMouseUp={saveRange}
+            onKeyUp={saveRange}
+            onClick={() => { setShowColorPicker(false); setShowBgColor(false); setShowEmoji(false); setShowMusic(false); }}
+            suppressContentEditableWarning={true}
+            className="custom-scrollbar editor-content"
+            style={{
+              flex:1, padding:'24px 32px', outline:'none', overflowY:'auto',
+              color:'var(--text-primary)', background:'var(--bg-secondary)',
+              lineHeight:1.7, fontSize:14,
+            }}
+          />
+        </section>
+
+        {/* ── COL 3: PREVIEW ── */}
+        <section style={{ flex:1, display:'flex', flexDirection:'column', background:'var(--bg-primary)', minWidth:0 }}>
+          <div className="section-header" style={{ justifyContent:'space-between' }}>
+            <span style={{ display:'flex', alignItems:'center', gap:6 }}><Ico name="monitor" size={13}/> Preview</span>
+            <div style={{ display:'flex', gap:2, background:'var(--bg-primary)', padding:2, borderRadius:8, border:'1px solid var(--border)' }}>
+              <button onClick={() => setDevice('desktop')}
+                style={{ padding:'3px 10px', borderRadius:6, border:'none', fontSize:10, fontWeight:800, cursor:'pointer',
+                  background: device==='desktop' ? 'var(--accent)' : 'transparent',
+                  color: device==='desktop' ? 'white' : 'var(--text-secondary)' }}>
+                <Ico name="monitor" size={12}/> PC
+              </button>
+              <button onClick={() => setDevice('mobile')}
+                style={{ padding:'3px 10px', borderRadius:6, border:'none', fontSize:10, fontWeight:800, cursor:'pointer',
+                  background: device==='mobile' ? 'var(--accent)' : 'transparent',
+                  color: device==='mobile' ? 'white' : 'var(--text-secondary)' }}>
+                <Ico name="phone" size={12}/> CEL
+              </button>
+            </div>
+          </div>
+          <div style={{ flex:1, display:'flex', justifyContent:'center', padding:20, overflowY:'auto' }} className="custom-scrollbar">
+            <div style={{
+              transition:'all 0.4s cubic-bezier(.4,0,.2,1)',
+              background: dark ? '#1E1B2E' : 'white',
+              boxShadow:'0 4px 24px rgba(0,0,0,0.15)',
+              ...(device === 'mobile'
+                ? { width:340, maxHeight:620, border:'12px solid var(--text-secondary)', borderRadius:'2.5rem', overflow:'hidden' }
+                : { width:'100%', height:'100%', border:'1px solid var(--border)', borderRadius:10, overflow:'hidden' })
+            }}>
+              <iframe ref={iframeRef} style={{ width:'100%', height:'100%', border:'none', display:'block' }} title="preview" />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer style={{
+        background:'var(--footer-bg)', color:'rgba(255,255,255,0.75)',
+        padding:'7px 18px', display:'flex', justifyContent:'space-between', alignItems:'center',
+        fontSize:10, flexWrap:'wrap', gap:6
+      }}>
+        <p style={{ fontWeight:700 }}>Desenvolvido pelo prof. Glauber Santiago — DAC/UFSCar</p>
+        <div style={{ display:'flex', gap:16 }}>
+          <a href="https://servidores.ufscar.br/glauber/" target="_blank" style={{ color:'rgba(255,255,255,0.75)', textDecoration:'none' }}>
+            servidores.ufscar.br/glauber/
+          </a>
+          <a href="https://sites.google.com/view/glauberia" target="_blank" style={{ color:'rgba(255,255,255,0.75)', textDecoration:'none' }}>
+            sites.google.com/view/glauberia
+          </a>
+        </div>
+      </footer>
+
+      {/* MODAIS */}
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+
+      {/* Fechar popovers ao clicar fora */}
+      {(showColorPicker || showBgColor || showEmoji || showMusic) && (
+        <div onClick={() => { setShowColorPicker(false); setShowBgColor(false); setShowEmoji(false); setShowMusic(false); }}
+          style={{ position:'fixed', inset:0, zIndex:150 }} />
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
 </body>
 </html>
