@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de GitHub Pages</title>
+    <!-- Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuração da Paleta de Cores Personalizada -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Habilita o modo escuro via classe
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            coral: '#FF6F61',
+                            pink: '#D83F87',
+                            muted: '#4A4E69',
+                            yellow: '#F9A828',
+                            beige: '#F2E9E4',
+                            dark: '#22223B',
+                            darkCard: '#2A2A4A' // Nova cor para os cartões no modo escuro
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Script preventivo para evitar 'flash' de luz ao carregar a página -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-brand-beige dark:bg-brand-dark text-brand-dark dark:text-brand-beige font-sans min-h-screen p-4 md:p-8 transition-colors duration-300">
+    
+    <!-- Botão de Alternar Tema -->
+    <div class="absolute top-4 right-4 md:top-8 md:right-8 z-10">
+        <button id="theme-toggle" class="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-brand-darkCard text-brand-muted dark:text-brand-beige shadow-sm border border-brand-muted/20 dark:border-brand-beige/10 hover:text-brand-coral dark:hover:text-brand-coral transition-colors" title="Alternar Tema">
+            <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+    </div>
+
+    <div class="max-w-5xl mx-auto relative mt-8 md:mt-0">
+        
+        <!-- Cabeçalho -->
+        <header class="text-center mb-10 mt-4">
+            <i class="fab fa-github text-6xl mb-4 text-brand-dark dark:text-brand-beige transition-colors"></i>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-brand-dark dark:text-brand-beige tracking-tight transition-colors">Visualizador de GitHub Pages</h1>
+            <p class="text-brand-muted dark:text-brand-beige/70 mt-3 text-lg transition-colors">Descubra e acesse facilmente os sites publicados de qualquer usuário.</p>
+        </header>
+
+        <!-- Barra de Pesquisa Principal -->
+        <div class="bg-white dark:bg-brand-darkCard p-4 rounded-2xl shadow-sm border border-brand-muted/20 dark:border-brand-beige/10 mb-6 flex gap-3 flex-col sm:flex-row transition-all hover:shadow-md">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-user text-brand-muted/60 dark:text-brand-beige/50"></i>
+                </div>
+                <input type="text" id="username-input" value="GlauberLASantiago" placeholder="Nome do usuário do GitHub..." 
+                    class="w-full pl-10 pr-4 py-3 bg-brand-beige/30 dark:bg-brand-dark border border-brand-muted/20 dark:border-brand-beige/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all text-brand-dark dark:text-brand-beige dark:placeholder-brand-beige/50">
+            </div>
+            <button id="search-btn" class="bg-brand-coral hover:bg-brand-pink text-white font-semibold py-3 px-8 rounded-xl transition duration-300 flex items-center justify-center gap-2 shadow-sm">
+                <i class="fas fa-search"></i> Pesquisar
+            </button>
+        </div>
+
+        <!-- Controlos Internos (Filtro, Ordenação e Visualização) -->
+        <div id="controls-bar" class="hidden bg-white dark:bg-brand-darkCard p-4 rounded-xl shadow-sm border border-brand-muted/20 dark:border-brand-beige/10 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between transition-colors">
+            
+            <!-- Pesquisa Interna -->
+            <div class="relative w-full md:w-1/3">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-filter text-brand-muted/60 dark:text-brand-beige/50"></i>
+                </div>
+                <input type="text" id="internal-search" placeholder="Filtrar repositórios..." 
+                    class="w-full pl-10 pr-4 py-2 text-sm bg-brand-beige/30 dark:bg-brand-dark border border-brand-muted/20 dark:border-brand-beige/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-coral transition-all text-brand-dark dark:text-brand-beige dark:placeholder-brand-beige/50">
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-center">
+                <!-- Ordenação -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <label for="sort-select" class="text-sm font-semibold text-brand-muted dark:text-brand-beige/80 whitespace-nowrap"><i class="fas fa-sort mr-1"></i> Ordenar:</label>
+                    <select id="sort-select" class="w-full sm:w-auto py-2 px-3 text-sm bg-brand-beige/30 dark:bg-brand-dark border border-brand-muted/20 dark:border-brand-beige/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-coral text-brand-dark dark:text-brand-beige cursor-pointer transition-colors">
+                        <option value="date-desc">Atualização (Mais recentes)</option>
+                        <option value="date-asc">Atualização (Mais antigos)</option>
+                        <option value="alpha-asc">Nome (A - Z)</option>
+                        <option value="alpha-desc">Nome (Z - A)</option>
+                    </select>
+                </div>
+
+                <!-- Alternar Visualização -->
+                <div class="flex bg-brand-beige/50 dark:bg-brand-dark/50 p-1 rounded-lg border border-transparent dark:border-brand-beige/10">
+                    <button id="view-grid" class="p-2 w-10 h-10 flex items-center justify-center rounded-md bg-white dark:bg-brand-darkCard shadow-sm text-brand-coral transition-all" title="Ver em Grade">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button id="view-list" class="p-2 w-10 h-10 flex items-center justify-center rounded-md text-brand-muted dark:text-brand-beige/60 hover:text-brand-coral dark:hover:text-brand-coral transition-all" title="Ver em Lista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicador de Carregamento -->
+        <div id="loading" class="hidden text-center py-12">
+            <i class="fas fa-circle-notch fa-spin text-5xl text-brand-coral mb-4"></i>
+            <p class="text-brand-muted dark:text-brand-beige/70 font-medium transition-colors">Buscando repositórios com Pages ativas...</p>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div id="error-message" class="hidden bg-brand-coral/10 dark:bg-brand-coral/20 border border-brand-coral/30 dark:border-brand-coral/40 text-brand-coral dark:text-brand-beige p-5 rounded-xl mb-8 flex items-start gap-3 transition-colors" role="alert">
+            <i class="fas fa-exclamation-circle text-xl mt-0.5 text-brand-coral"></i>
+            <div>
+                <p class="font-bold text-brand-coral">Ocorreu um erro</p>
+                <p id="error-text" class="text-sm mt-1 text-brand-dark dark:text-brand-beige/80">Não foi possível carregar os dados.</p>
+            </div>
+        </div>
+
+        <!-- Link do Perfil do GitHub -->
+        <div id="user-profile-info" class="hidden mb-6 bg-white dark:bg-brand-darkCard p-4 rounded-xl shadow-sm border border-brand-muted/20 dark:border-brand-beige/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-colors">
+            <div class="flex items-center gap-2 text-brand-dark dark:text-brand-beige font-bold">
+                <i class="fab fa-github text-xl"></i>
+                <span>Perfil do GitHub:</span>
+            </div>
+            <a id="user-github-link" href="#" target="_blank" rel="noopener noreferrer" class="text-brand-coral hover:text-brand-pink font-medium transition-colors break-all flex items-center gap-2">
+                https://github.com/
+                <i class="fas fa-external-link-alt text-sm"></i>
+            </a>
+        </div>
+
+        <!-- Contêiner de Resultados -->
+        <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Os cartões dos repositórios serão injetados aqui pelo JavaScript -->
+        </div>
+        
+        <!-- Mensagem de Sem Resultados Principais -->
+        <div id="no-results" class="hidden flex flex-col items-center justify-center py-16 px-4 bg-white dark:bg-brand-darkCard rounded-2xl shadow-sm border border-brand-muted/20 dark:border-brand-beige/10 text-center transition-colors">
+            <div class="bg-brand-beige dark:bg-brand-dark p-4 rounded-full mb-4 text-brand-muted dark:text-brand-beige/70">
+                <i class="fas fa-folder-open text-4xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-brand-dark dark:text-brand-beige mb-2">Nenhum site encontrado</h3>
+            <p class="text-brand-muted dark:text-brand-beige/70 max-w-md">Este usuário não possui nenhum repositório com a funcionalidade GitHub Pages ativada.</p>
+        </div>
+
+        <!-- Mensagem de Filtro Vazio -->
+        <div id="no-filter-results" class="hidden text-center py-12 text-brand-muted dark:text-brand-beige/70 transition-colors">
+            <i class="fas fa-search-minus text-3xl mb-3 opacity-50"></i>
+            <p>Nenhum repositório corresponde à sua pesquisa interna.</p>
+        </div>
+    </div>
+
+    <script>
+        // Gestão do Tema Escuro
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlElement = document.documentElement;
+
+        function updateThemeIcon() {
+            if (htmlElement.classList.contains('dark')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+
+        // Inicializar ícone correto
+        updateThemeIcon();
+
+        themeToggleBtn.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            updateThemeIcon();
+            
+            if (htmlElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+
+        // Referências para os elementos do DOM da aplicação
+        const usernameInput = document.getElementById('username-input');
+        const searchBtn = document.getElementById('search-btn');
+        const internalSearchInput = document.getElementById('internal-search');
+        const sortSelect = document.getElementById('sort-select');
+        const viewGridBtn = document.getElementById('view-grid');
+        const viewListBtn = document.getElementById('view-list');
+        const controlsBar = document.getElementById('controls-bar');
+        const loadingIndicator = document.getElementById('loading');
+        const resultsContainer = document.getElementById('results-container');
+        const noResultsMessage = document.getElementById('no-results');
+        const noFilterResultsMessage = document.getElementById('no-filter-results');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const userProfileInfo = document.getElementById('user-profile-info');
+        const userGithubLink = document.getElementById('user-github-link');
+
+        // Estado Global da Aplicação
+        let allPagesRepos = []; 
+        let currentUsername = '';
+        let currentView = 'grid'; 
+
+        // Função para buscar os dados na API
+        async function fetchPagesRepos(username) {
+            currentUsername = username;
+            
+            // Resetar Interface
+            resultsContainer.innerHTML = '';
+            noResultsMessage.classList.add('hidden');
+            noFilterResultsMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            controlsBar.classList.add('hidden');
+            userProfileInfo.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+            
+            // Resetar Pesquisa Interna
+            internalSearchInput.value = '';
+
+            try {
+                const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) throw new Error('Usuário não encontrado no GitHub.');
+                    if (response.status === 403) throw new Error('Limite de consultas à API excedido. Tente mais tarde.');
+                    throw new Error(`Erro na comunicação com a API (Código: ${response.status}).`);
+                }
+
+                const repos = await response.json();
+                
+                // Filtrar os que têm pages ativas e guardar no estado global
+                allPagesRepos = repos.filter(repo => repo.has_pages);
+
+                loadingIndicator.classList.add('hidden');
+
+                if (allPagesRepos.length === 0) {
+                    noResultsMessage.classList.remove('hidden');
+                    return;
+                }
+
+                // Atualizar e exibir o link do perfil principal
+                userGithubLink.href = `https://github.com/${currentUsername}`;
+                userGithubLink.innerHTML = `https://github.com/${currentUsername} <i class="fas fa-external-link-alt text-sm ml-1"></i>`;
+                userProfileInfo.classList.remove('hidden');
+
+                controlsBar.classList.remove('hidden');
+                renderRepos(); 
+
+            } catch (error) {
+                loadingIndicator.classList.add('hidden');
+                errorText.textContent = error.message;
+                errorMessage.classList.remove('hidden');
+            }
+        }
+
+        // Função para renderizar os repositórios com base nos filtros, ordenação e tipo de vista
+        function renderRepos() {
+            resultsContainer.innerHTML = '';
+            noFilterResultsMessage.classList.add('hidden');
+
+            // 1. Filtrar (Pesquisa Interna)
+            const searchTerm = internalSearchInput.value.toLowerCase().trim();
+            let filteredRepos = allPagesRepos.filter(repo => 
+                repo.name.toLowerCase().includes(searchTerm) || 
+                (repo.description && repo.description.toLowerCase().includes(searchTerm))
+            );
+
+            // 2. Ordenar
+            const sortMethod = sortSelect.value;
+            filteredRepos.sort((a, b) => {
+                if (sortMethod === 'date-desc') return new Date(b.updated_at) - new Date(a.updated_at);
+                if (sortMethod === 'date-asc') return new Date(a.updated_at) - new Date(b.updated_at);
+                if (sortMethod === 'alpha-asc') return a.name.localeCompare(b.name);
+                if (sortMethod === 'alpha-desc') return b.name.localeCompare(a.name);
+            });
+
+            // Se o filtro ocultar todos os resultados
+            if (filteredRepos.length === 0) {
+                noFilterResultsMessage.classList.remove('hidden');
+                return;
+            }
+
+            // 3. Aplicar estilos de Grade ou Lista ao contêiner
+            if (currentView === 'grid') {
+                resultsContainer.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
+            } else {
+                resultsContainer.className = 'flex flex-col gap-4';
+            }
+
+            // 4. Criar os elementos
+            filteredRepos.forEach(repo => {
+                const isUserRootRepo = repo.name.toLowerCase() === `${currentUsername.toLowerCase()}.github.io`;
+                const pageUrl = isUserRootRepo 
+                    ? `https://${currentUsername}.github.io/` 
+                    : `https://${currentUsername}.github.io/${repo.name}/`;
+
+                const updateDate = new Date(repo.updated_at).toLocaleDateString('pt-BR', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+
+                const card = document.createElement('a');
+                card.href = pageUrl;
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
+                
+                // Estilização condicional baseada na vista, incluindo dark mode classes
+                if (currentView === 'grid') {
+                    card.className = 'flex flex-col h-full bg-white dark:bg-brand-darkCard border border-brand-muted/20 dark:border-brand-beige/10 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 hover:border-brand-coral dark:hover:border-brand-coral transition-all duration-300 group cursor-pointer';
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between mb-3">
+                            <h3 class="text-lg font-bold text-brand-dark dark:text-brand-beige group-hover:text-brand-coral dark:group-hover:text-brand-coral transition-colors break-words pr-4">
+                                ${repo.name}
+                            </h3>
+                            <div class="bg-brand-pink/10 text-brand-pink p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-external-link-alt"></i>
+                            </div>
+                        </div>
+                        <p class="text-brand-muted dark:text-brand-beige/70 text-sm mb-6 flex-grow leading-relaxed transition-colors">
+                            ${repo.description ? repo.description : '<em class="opacity-50">Sem descrição fornecida para este repositório.</em>'}
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-brand-muted/80 dark:text-brand-beige/50 mt-auto pt-4 border-t border-brand-beige dark:border-brand-beige/10 font-medium transition-colors">
+                            <span class="flex items-center bg-brand-beige dark:bg-brand-dark px-2 py-1 rounded-md text-brand-dark dark:text-brand-beige transition-colors">
+                                <i class="fas fa-star text-brand-yellow mr-1.5"></i> ${repo.stargazers_count}
+                            </span>
+                            <span><i class="far fa-clock mr-1"></i> Atualizado em ${updateDate}</span>
+                        </div>
+                    `;
+                } else {
+                    // Visualização em Lista
+                    card.className = 'flex flex-col sm:flex-row sm:items-center justify-between w-full bg-white dark:bg-brand-darkCard border border-brand-muted/20 dark:border-brand-beige/10 rounded-xl p-5 hover:shadow-md hover:border-brand-coral dark:hover:border-brand-coral transition-all duration-300 group cursor-pointer gap-4';
+                    card.innerHTML = `
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="text-lg font-bold text-brand-dark dark:text-brand-beige group-hover:text-brand-coral dark:group-hover:text-brand-coral transition-colors truncate">
+                                    ${repo.name}
+                                </h3>
+                            </div>
+                            <p class="text-brand-muted dark:text-brand-beige/70 text-sm truncate transition-colors">
+                                ${repo.description ? repo.description : '<em class="opacity-50">Sem descrição.</em>'}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs font-medium shrink-0 transition-colors">
+                            <span class="flex items-center bg-brand-beige dark:bg-brand-dark px-2 py-1.5 rounded-md text-brand-dark dark:text-brand-beige transition-colors">
+                                <i class="fas fa-star text-brand-yellow mr-1.5"></i> ${repo.stargazers_count}
+                            </span>
+                            <span class="text-brand-muted/80 dark:text-brand-beige/50 hidden sm:inline-block"><i class="far fa-clock mr-1"></i> Atualizado em ${updateDate}</span>
+                            <div class="text-brand-pink ml-2">
+                                <i class="fas fa-chevron-right transform group-hover:translate-x-1 transition-transform"></i>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                resultsContainer.appendChild(card);
+            });
+        }
+
+        // --- Event Listeners ---
+
+        // Pesquisa Principal do GitHub
+        searchBtn.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username) fetchPagesRepos(username);
+        });
+
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const username = usernameInput.value.trim();
+                if (username) fetchPagesRepos(username);
+            }
+        });
+
+        // Controlos Internos
+        internalSearchInput.addEventListener('input', renderRepos);
+        sortSelect.addEventListener('change', renderRepos);
+
+        // Alternância de Vistas
+        function updateViewButtons() {
+            // Estilos que consideram o dark mode também
+            const activeClass = 'p-2 w-10 h-10 flex items-center justify-center rounded-md bg-white dark:bg-brand-darkCard shadow-sm text-brand-coral transition-all';
+            const inactiveClass = 'p-2 w-10 h-10 flex items-center justify-center rounded-md text-brand-muted dark:text-brand-beige/60 hover:text-brand-coral dark:hover:text-brand-coral transition-all';
+
+            if (currentView === 'grid') {
+                viewGridBtn.className = activeClass;
+                viewListBtn.className = inactiveClass;
+            } else {
+                viewListBtn.className = activeClass;
+                viewGridBtn.className = inactiveClass;
+            }
+            renderRepos();
+        }
+
+        viewGridBtn.addEventListener('click', () => {
+            if (currentView !== 'grid') {
+                currentView = 'grid';
+                updateViewButtons();
+            }
+        });
+
+        viewListBtn.addEventListener('click', () => {
+            if (currentView !== 'list') {
+                currentView = 'list';
+                updateViewButtons();
+            }
+        });
+
+        // Carregar a pesquisa inicial
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchPagesRepos(usernameInput.value.trim());
+        });
+    </script>
+</body>
+</html>
