@@ -1,38 +1,77 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Code2, 
-  Type, 
-  MonitorPlay, 
-  Smartphone, 
-  Monitor, 
-  Bold, 
-  Italic, 
-  Underline, 
-  List, 
-  Heading1, 
-  Heading2,
-  Heading3, 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight,
-  AlignJustify,
-  Save,
-  Strikethrough,
-  ListOrdered,
-  Undo,
-  Redo,
-  Link as LinkIcon,
-  Unlink,
-  Eraser,
-  Palette,
-  Indent,
-  Outdent,
-  Smile,
-  Music
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlauWeb Html Editor</title>
+    <!-- Bibliotecas Necessárias -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E4BAD4; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C490D1; }
 
-export default function App() {
-  const [html, setHtml] = useState(
+        /* Estilos do Editor Visual */
+        .editor-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; line-height: 1.2; }
+        .editor-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; line-height: 1.2; }
+        .editor-content h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; line-height: 1.2; }
+        .editor-content p { margin: 1em 0; line-height: 1.5; }
+        .editor-content ul { list-style-type: disc; padding-left: 40px; margin: 1em 0; }
+        .editor-content ol { list-style-type: decimal; padding-left: 40px; margin: 1em 0; }
+        .editor-content li { display: list-item; margin: 0.25em 0; }
+        .editor-content a { color: #3b82f6; text-decoration: underline; }
+        
+        /* Reset para classes de sumário */
+        .editor-content .toc ol, .editor-content .toc ul, 
+        .editor-content .sumario ol, .editor-content .sumario ul { 
+            list-style-type: none !important; 
+            padding-left: 0 !important; 
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect, useMemo } = React;
+
+        // Ícones via Lucide
+        const Icon = ({ name, size = 16, className = "" }) => {
+            const ref = useRef(null);
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons({
+                        attrs: { 
+                            class: className,
+                            width: size,
+                            height: size
+                        },
+                        nameAttr: 'data-lucide'
+                    });
+                }
+            }, [name, size, className]);
+            return <i data-lucide={name} className={className}></i>;
+        };
+
+        const ToolbarButton = ({ icon, onClick, tooltip, label }) => (
+            <button 
+                onMouseDown={e => e.preventDefault()} 
+                onClick={onClick} 
+                title={tooltip}
+                className="p-1.5 flex items-center justify-center text-[#756D79] hover:bg-[#F6DFEB] hover:text-[#C490D1] rounded transition-colors focus:outline-none"
+            >
+                {icon}
+                {label && <span className="ml-1 text-[9px] font-bold uppercase">{label}</span>}
+            </button>
+        );
+
+        function App() {
+            const [html, setHtml] = useState(
 `<div style="text-align: center; padding: 20px;">
   <h1 style="color: #C490D1; font-family: sans-serif;">Bem-vindo ao GlauWeb</h1>
   <p style="color: #756D79; font-size: 18px;">Comece a editar o <strong>texto</strong> ou o código HTML.</p>
@@ -42,405 +81,265 @@ export default function App() {
   <li>Coluna 2: Editor Visual rico</li>
   <li>Coluna 3: Pré-visualização final</li>
 </ul>`
-  );
-  
-  const [device, setDevice] = useState('desktop');
-  const [fileName, setFileName] = useState('index');
-  const [savedRange, setSavedRange] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showMusicPicker, setShowMusicPicker] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('');
-  const visualEditorRef = useRef(null);
-
-  const emojisComuns = ['😀', '😂', '🥰', '😎', '🤔', '👍', '👎', '🙌', '🔥', '✨', '⭐', '❤️', '💡', '✅', '❌'];
-  const emojisMusicais = ['🎵', '🎶', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻', '🎤', '🎧', '📻', '👩‍🎤', '👨‍🎤'];
-  
-  const simbolosMusicais = [
-    '♩', '♪', '♫', '♬', '♭', '♮', '♯', '𝄪', '𝄫', '𝄞', '𝄢', '𝄡', 
-    '𝄀', '𝄁', '𝄂', '𝄃', '𝄄', '𝄅', '𝄆', '𝄇', '𝄐', '𝄑', 
-    '𝄽', '𝄾', '𝄿', '𝅀', '𝅁', '𝅂', '𝅃', '𝅄', '𝅅', 
-    '𝅝', '𝅗𝅥', '𝅘𝅥', '𝅘𝅥𝅮', '𝅘𝅥𝅯', '𝅘𝅥𝅰', '𝅘𝅥𝅱', '𝅘𝅥𝅲', 
-    '𝆏', '𝆑', '𝆎', '𝆍', '𝆌', '𝆖', '𝆗', '𝆘', '𝆙'
-  ];
-
-  const paletasDeCores = [
-    {
-      titulo: 'Tema GlauWeb',
-      grid: 'grid-cols-6',
-      cores: ['#A7D7C5', '#F7F4E9', '#F6DFEB', '#E4BAD4', '#C490D1', '#756D79']
-    },
-    {
-      titulo: 'Cores Padrão',
-      grid: 'grid-cols-8',
-      cores: [
-        '#000000', '#434343', '#666666', '#999999', '#CCCCCC', '#EFEFEF', '#F3F3F3', '#FFFFFF',
-        '#FF0000', '#FF9900', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#9900FF', '#FF00FF'
-      ]
-    },
-    {
-      titulo: 'Tons Pastel',
-      grid: 'grid-cols-8',
-      cores: [
-        '#F4CCCC', '#FCE5CD', '#FFF2CC', '#D9EAD3', '#D0E0E3', '#C9DAF8', '#CFE2F3', '#EAD1DC',
-        '#EA9999', '#F9CB9C', '#FFE599', '#B6D7A8', '#A2C4C9', '#9FC5E8', '#B4A7D6', '#D5A6BD'
-      ]
-    },
-    {
-      titulo: 'Tons Vibrantes e Escuros',
-      grid: 'grid-cols-8',
-      cores: [
-        '#CC0000', '#E69138', '#F1C232', '#6AA84F', '#45818E', '#3D85C6', '#674EA7', '#A64D79',
-        '#990000', '#B45F06', '#BF9000', '#38761D', '#134F5C', '#0B5394', '#351C75', '#741B47'
-      ]
-    }
-  ];
-
-  useEffect(() => {
-    if (visualEditorRef.current && visualEditorRef.current.innerHTML !== html) {
-      visualEditorRef.current.innerHTML = html;
-    }
-  }, [html]);
-
-  const saveSelection = () => {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0 && visualEditorRef.current) {
-      const range = selection.getRangeAt(0);
-      if (visualEditorRef.current.contains(range.commonAncestorContainer)) {
-        setSavedRange(range);
-      }
-    }
-  };
-
-  const restoreSelection = () => {
-    if (savedRange) {
-      visualEditorRef.current.focus();
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(savedRange);
-    } else {
-      visualEditorRef.current.focus();
-    }
-  };
-
-  const handleCodeChange = (e) => {
-    setHtml(e.target.value);
-  };
-
-  const handleVisualChange = () => {
-    if (visualEditorRef.current) {
-      setHtml(visualEditorRef.current.innerHTML);
-    }
-  };
-
-  const execCommand = (command, value = null) => {
-    restoreSelection(); 
-    document.execCommand(command, false, value);
-    handleVisualChange(); 
-    saveSelection(); 
-  };
-
-  const handleInsertLink = () => {
-    restoreSelection();
-    const url = prompt('Digite a URL do link (ex: https://...):', 'https://');
-    if (url && url !== 'https://') {
-      restoreSelection(); 
-      document.execCommand('createLink', false, url);
-      handleVisualChange();
-    }
-  };
-
-  const handleInsertEmoji = (emoji) => {
-    restoreSelection();
-    document.execCommand('insertText', false, emoji);
-    handleVisualChange();
-    setShowEmojiPicker(false);
-    setShowMusicPicker(false);
-  };
-
-  const handleFormatParagraph = () => {
-    restoreSelection();
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-      let node = selection.anchorNode;
-      if (node && node.nodeType === 3) node = node.parentNode;
-      
-      if (node && node.closest) {
-        const ul = node.closest('ul');
-        const ol = node.closest('ol');
-        if (ul) document.execCommand('insertUnorderedList', false, null);
-        if (ol) document.execCommand('insertOrderedList', false, null);
-      }
-    }
-    document.execCommand('formatBlock', false, 'p');
-    handleVisualChange();
-    saveSelection();
-  };
-
-  const handleColorSelection = (hexColor) => {
-    if (!hexColor) return;
-    let finalColor = hexColor.trim();
-    if (!finalColor.startsWith('#')) finalColor = '#' + finalColor;
-
-    restoreSelection();
-    document.execCommand('styleWithCSS', false, true);
-    document.execCommand('foreColor', false, finalColor);
-    
-    setTimeout(() => {
-      if (!visualEditorRef.current) return;
-      let currentHtml = visualEditorRef.current.innerHTML;
-      const rgbRegex = /color:\s*rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/g;
-      if (rgbRegex.test(currentHtml)) {
-        const newHtml = currentHtml.replace(rgbRegex, (match, r, g, b) => {
-          const hex = '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase();
-          return `color: ${hex}`;
-        });
-        visualEditorRef.current.innerHTML = newHtml;
-        setHtml(newHtml);
-      } else {
-        handleVisualChange();
-      }
-    }, 10);
-
-    setShowColorPicker(false);
-    saveSelection();
-  };
-
-  const handleSave = () => {
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fileName || 'index'}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const iframeContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <style>
-        body { margin: 0; font-family: system-ui, sans-serif; word-wrap: break-word; padding: 1rem; }
-        .toc ol, .toc ul, .sumario ol, .sumario ul { list-style-type: none !important; padding-left: 0 !important; }
-        .toc a, .sumario a { text-decoration: none; }
-        .toc a:hover, .sumario a:hover { text-decoration: underline; }
-      </style>
-    </head>
-    <body>${html}</body>
-    </html>
-  `;
-
-  return (
-    <div className="h-screen w-full flex flex-col bg-[#F7F4E9] text-[#756D79] font-sans overflow-hidden">
-      <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-3 bg-white border-b border-[#E4BAD4] shadow-sm z-10 gap-4 sm:gap-0">
-        <div className="flex items-center gap-3">
-          <div className="bg-[#C490D1] p-2 rounded-lg text-white">
-            <Code2 size={24} />
-          </div>
-          <h1 className="text-xl font-bold text-[#756D79] tracking-tight">
-            GlauWeb <span className="text-[#C490D1]">Html Editor</span>
-          </h1>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-[#F7F4E9] rounded-md border border-[#E4BAD4] overflow-hidden focus-within:ring-2 focus-within:ring-[#C490D1]/50 transition-all">
-            <input
-              type="text"
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              className="bg-transparent px-3 py-1.5 text-sm outline-none text-[#756D79] w-32 placeholder-[#756D79]/50 font-medium"
-              placeholder="nome-do-arquivo"
-            />
-            <span className="px-3 py-1.5 bg-[#F6DFEB] text-[#756D79] text-sm border-l border-[#E4BAD4] font-semibold">.html</span>
-          </div>
-          <span className="hidden md:block text-xs text-[#756D79]/70 italic max-w-[100px] leading-tight">* Pode mudar o nome</span>
-          <button onClick={handleSave} className="flex items-center gap-2 bg-[#A7D7C5] hover:brightness-95 text-[#756D79] px-4 py-1.5 rounded-md font-bold transition-all shadow-sm">
-            <Save size={18} /> Salvar
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        <section className="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-[#E4BAD4] bg-gray-900 min-h-[300px]">
-          <header className="px-4 py-3 bg-[#756D79] border-b border-[#756D79] flex items-center gap-2 text-[#F7F4E9] font-semibold">
-            <Code2 size={18} className="text-[#A7D7C5]" /> <span>Código HTML</span>
-          </header>
-          <textarea
-            value={html}
-            onChange={handleCodeChange}
-            className="flex-1 w-full p-4 font-mono text-sm bg-gray-900 text-[#A7D7C5] focus:outline-none resize-none custom-scrollbar"
-            spellCheck={false}
-          />
-        </section>
-
-        <section className="flex-1.5 flex flex-col border-b lg:border-b-0 lg:border-r border-[#E4BAD4] bg-white min-h-[300px] lg:w-[45%]">
-          <header className="px-4 py-3 bg-[#F6DFEB] border-b border-[#E4BAD4] flex flex-col shadow-sm z-10 gap-2">
-            <div className="flex items-center gap-2 font-semibold text-[#756D79]">
-              <Type size={18} className="text-[#C490D1]" /> <span>Editor Visual</span>
-            </div>
+            );
             
-            <div className="flex flex-wrap gap-1 bg-white border border-[#E4BAD4] p-1.5 rounded-md shadow-sm items-center">
-              <ToolbarButton icon={<Undo size={16} />} onClick={() => execCommand('undo')} tooltip="Desfazer" />
-              <ToolbarButton icon={<Redo size={16} />} onClick={() => execCommand('redo')} tooltip="Refazer" />
-              <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
+            const [device, setDevice] = useState('desktop');
+            const [fileName, setFileName] = useState('index');
+            const [savedRange, setSavedRange] = useState(null);
+            const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+            const [showMusicPicker, setShowMusicPicker] = useState(false);
+            const [showColorPicker, setShowColorPicker] = useState(false);
+            const [customColor, setCustomColor] = useState('');
+            const visualEditorRef = useRef(null);
+            const iframeRef = useRef(null);
 
-              <select onChange={(e) => execCommand('fontName', e.target.value)} className="text-xs text-[#756D79] bg-[#F7F4E9] border border-[#E4BAD4] rounded px-1 py-1 outline-none">
-                <option value="">Fonte...</option>
-                <option value="Arial">Arial</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Verdana">Verdana</option>
-              </select>
+            const emojisComuns = ['😀', '😂', '🥰', '😎', '🤔', '👍', '👎', '🙌', '🔥', '✨', '⭐', '❤️', '💡', '✅', '❌'];
+            const emojisMusicais = ['🎵', '🎶', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻', '🎤', '🎧', '📻', '👩‍🎤', '👨‍🎤'];
+            const simbolosMusicais = ['♩', '♪', '♫', '♬', '♭', '♮', '♯', '𝄪', '𝄫', '𝄞', '𝄢', '𝄡', '𝄀', '𝄁', '𝄂', '𝄃', '𝄄', '𝄅', '𝄆', '𝄇', '𝄐', '𝄑', '𝄽', '𝄾', '𝄿', '𝅀', '𝅁', '𝅂', '𝅃', '𝅄', '𝅅', '𝅝', '𝅗𝅥', '𝅘𝅥', '𝅘𝅥𝅮', '𝅘𝅥𝅯', '𝅘𝅥𝅰', '𝅘𝅥𝅱', '𝅘𝅥𝅲', '𝆏', '𝆑', '𝆎', '𝆍', '𝆌', '𝆖', '𝆗', '𝆘', '𝆙'];
 
-              <select onChange={(e) => execCommand('fontSize', e.target.value)} className="text-xs text-[#756D79] bg-[#F7F4E9] border border-[#E4BAD4] rounded px-1 py-1 outline-none ml-1">
-                <option value="">Tamanho...</option>
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
-              </select>
-              <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
-              
-              <ToolbarButton icon={<Bold size={16} />} onClick={() => execCommand('bold')} tooltip="Negrito" />
-              <ToolbarButton icon={<Italic size={16} />} onClick={() => execCommand('italic')} tooltip="Itálico" />
-              <ToolbarButton icon={<Underline size={16} />} onClick={() => execCommand('underline')} tooltip="Sublinhado" />
-              <ToolbarButton icon={<Strikethrough size={16} />} onClick={() => execCommand('strikeThrough')} tooltip="Tachado" />
-              
-              <div className="relative">
-                <ToolbarButton icon={<Palette size={16} />} onClick={() => { saveSelection(); setShowColorPicker(!showColorPicker); setShowEmojiPicker(false); setShowMusicPicker(false); }} tooltip="Cor do Texto" />
-                {showColorPicker && (
-                  <div className="absolute top-full left-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-3 w-[280px] z-50 max-h-96 overflow-y-auto custom-scrollbar">
-                    {paletasDeCores.map((p, i) => (
-                      <div key={i} className="mb-2">
-                        <p className="text-[10px] font-bold text-[#C490D1] mb-1">{p.titulo}</p>
-                        <div className={`grid ${p.grid} gap-1`}>
-                          {p.cores.map(c => <button key={c} onClick={() => handleColorSelection(c)} className="w-full aspect-square rounded border border-gray-200" style={{ backgroundColor: c }} />)}
+            const paletas = [
+                { titulo: 'GlauWeb', grid: 'grid-cols-6', cores: ['#A7D7C5', '#F7F4E9', '#F6DFEB', '#E4BAD4', '#C490D1', '#756D79'] },
+                { titulo: 'Padrão', grid: 'grid-cols-8', cores: ['#000000', '#434343', '#666666', '#999999', '#CCCCCC', '#FFFFFF', '#FF0000', '#FF9900', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#9900FF', '#FF00FF'] }
+            ];
+
+            // Sincronização do Preview via Iframe Document Write (mais estável que srcDoc)
+            useEffect(() => {
+                const iframe = iframeRef.current;
+                if (iframe) {
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    const content = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                body { margin: 0; font-family: sans-serif; word-wrap: break-word; padding: 1rem; color: #333; }
+                                .toc ol, .toc ul, .sumario ol, .sumario ul { list-style-type: none !important; padding-left: 0 !important; }
+                                a { color: #3b82f6; }
+                            </style>
+                        </head>
+                        <body>${html}</body>
+                        </html>
+                    `;
+                    doc.open();
+                    doc.write(content);
+                    doc.close();
+                }
+            }, [html]);
+
+            // Sincronização do Editor Visual quando o HTML muda
+            useEffect(() => {
+                if (visualEditorRef.current && visualEditorRef.current.innerHTML !== html) {
+                    visualEditorRef.current.innerHTML = html;
+                }
+            }, [html]);
+
+            const saveSelection = () => {
+                const sel = window.getSelection();
+                if (sel.rangeCount > 0 && visualEditorRef.current?.contains(sel.anchorNode)) {
+                    setSavedRange(sel.getRangeAt(0));
+                }
+            };
+
+            const restoreSelection = () => {
+                if (savedRange) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(savedRange);
+                }
+                visualEditorRef.current?.focus();
+            };
+
+            const execCommand = (cmd, val = null) => {
+                restoreSelection();
+                document.execCommand(cmd, false, val);
+                setHtml(visualEditorRef.current.innerHTML);
+                saveSelection();
+            };
+
+            const handleFormatParagraph = () => {
+                restoreSelection();
+                const sel = window.getSelection();
+                if (sel.rangeCount > 0) {
+                    let node = sel.anchorNode;
+                    if (node?.nodeType === 3) node = node.parentNode;
+                    const list = node?.closest('ul, ol');
+                    if (list) {
+                        const cmd = list.tagName === 'UL' ? 'insertUnorderedList' : 'insertOrderedList';
+                        document.execCommand(cmd, false, null);
+                    }
+                }
+                document.execCommand('formatBlock', false, 'p');
+                setHtml(visualEditorRef.current.innerHTML);
+            };
+
+            const handleInsertLink = () => {
+                const url = prompt('URL:', 'https://');
+                if (url) execCommand('createLink', url);
+            };
+
+            const handleColor = (color) => {
+                document.execCommand('styleWithCSS', false, true);
+                execCommand('foreColor', color);
+                setShowColorPicker(false);
+            };
+
+            const handleSave = () => {
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${fileName || 'index'}.html`;
+                a.click();
+            };
+
+            return (
+                <div className="h-screen w-full flex flex-col bg-[#F7F4E9] text-[#756D79] font-sans overflow-hidden">
+                    <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-3 bg-white border-b border-[#E4BAD4] shadow-sm z-10 gap-4 sm:gap-0">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-[#C490D1] p-2 rounded-lg text-white">
+                                <Icon name="code-2" size={24} />
+                            </div>
+                            <h1 className="text-xl font-bold tracking-tight">GlauWeb <span className="text-[#C490D1]">Html Editor</span></h1>
                         </div>
-                      </div>
-                    ))}
-                    <div className="mt-2 pt-2 border-t border-[#F6DFEB] flex gap-1">
-                      <input type="text" value={customColor} onChange={e => setCustomColor(e.target.value)} className="flex-1 text-xs border border-[#E4BAD4] p-1 rounded" placeholder="#HEX" />
-                      <button onClick={() => handleColorSelection(customColor)} className="bg-[#C490D1] text-white text-[10px] px-2 rounded font-bold">OK</button>
-                    </div>
-                  </div>
-                )}
-              </div>
+                        
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center bg-[#F7F4E9] border border-[#E4BAD4] rounded-md overflow-hidden">
+                                <input value={fileName} onChange={e => setFileName(e.target.value)} className="bg-transparent px-3 py-1.5 text-sm outline-none w-32" />
+                                <span className="px-2 py-1.5 bg-[#F6DFEB] text-xs font-bold">.html</span>
+                            </div>
+                            <button onClick={handleSave} className="bg-[#A7D7C5] px-4 py-1.5 rounded-md font-bold flex items-center gap-2 shadow-sm">
+                                <Icon name="save" size={18} /> Salvar
+                            </button>
+                        </div>
+                    </header>
 
-              <ToolbarButton 
-                icon={<div className="flex items-center gap-1"><Eraser size={14} /><span className="text-[9px] font-bold">LIMPAR</span></div>} 
-                onClick={() => execCommand('removeFormat')} 
-              />
-              <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
-              
-              <ToolbarButton 
-                icon={<div className="flex items-center gap-1"><span className="font-bold text-xs">P</span><span className="text-[9px] font-bold">NORMAL</span></div>} 
-                onClick={handleFormatParagraph} 
-              />
-              <ToolbarButton icon={<Heading1 size={14} />} onClick={() => execCommand('formatBlock', 'h1')} />
-              <ToolbarButton icon={<Heading2 size={14} />} onClick={() => execCommand('formatBlock', 'h2')} />
-              <ToolbarButton icon={<Heading3 size={14} />} onClick={() => execCommand('formatBlock', 'h3')} />
-              <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
-              
-              <ToolbarButton icon={<AlignLeft size={16} />} onClick={() => execCommand('justifyLeft')} />
-              <ToolbarButton icon={<AlignCenter size={16} />} onClick={() => execCommand('justifyCenter')} />
-              <ToolbarButton icon={<AlignRight size={16} />} onClick={() => execCommand('justifyRight')} />
-              <ToolbarButton icon={<AlignJustify size={16} />} onClick={() => execCommand('justifyFull')} />
-              <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
-              
-              <ToolbarButton icon={<List size={16} />} onClick={() => execCommand('insertUnorderedList')} />
-              <ToolbarButton icon={<ListOrdered size={16} />} onClick={() => execCommand('insertOrderedList')} />
-              <ToolbarButton icon={<Outdent size={16} />} onClick={() => execCommand('outdent')} />
-              <ToolbarButton icon={<Indent size={16} />} onClick={() => execCommand('indent')} />
-              <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
-              
-              <ToolbarButton icon={<LinkIcon size={16} />} onClick={handleInsertLink} />
-              <ToolbarButton icon={<Unlink size={16} />} onClick={() => execCommand('unlink')} />
-              
-              <div className="relative">
-                <ToolbarButton icon={<Music size={16} />} onClick={() => { saveSelection(); setShowMusicPicker(!showMusicPicker); setShowEmojiPicker(false); setShowColorPicker(false); }} />
-                {showMusicPicker && (
-                  <div className="absolute top-full right-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-2 w-[240px] z-50 max-h-60 overflow-y-auto grid grid-cols-6 gap-1 custom-scrollbar">
-                    {simbolosMusicais.map((s, i) => <button key={i} onClick={() => handleInsertEmoji(s)} className="p-1 hover:bg-[#F6DFEB] rounded text-lg">{s}</button>)}
-                  </div>
-                )}
-              </div>
+                    <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                        {/* Código */}
+                        <section className="flex-1 flex flex-col border-r border-[#E4BAD4] bg-gray-900">
+                            <div className="px-4 py-2 bg-[#756D79] text-[#F7F4E9] text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                                <Icon name="code-2" size={14} className="text-[#A7D7C5]"/> Código HTML
+                            </div>
+                            <textarea 
+                                value={html} 
+                                onChange={e => setHtml(e.target.value)}
+                                className="flex-1 w-full p-4 font-mono text-sm bg-gray-900 text-[#A7D7C5] outline-none resize-none custom-scrollbar"
+                            />
+                        </section>
 
-              <div className="relative">
-                <ToolbarButton icon={<Smile size={16} />} onClick={() => { saveSelection(); setShowEmojiPicker(!showEmojiPicker); setShowMusicPicker(false); setShowColorPicker(false); }} />
-                {showEmojiPicker && (
-                  <div className="absolute top-full right-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-2 w-[200px] z-50 max-h-60 overflow-y-auto custom-scrollbar">
-                    <div className="grid grid-cols-5 gap-1">
-                      {emojisMusicais.map(e => <button key={e} onClick={() => handleInsertEmoji(e)} className="p-1 hover:bg-[#F6DFEB] rounded">{e}</button>)}
-                      {emojisComuns.map(e => <button key={e} onClick={() => handleInsertEmoji(e)} className="p-1 hover:bg-[#F6DFEB] rounded">{e}</button>)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </header>
-          
-          <div
-            ref={visualEditorRef}
-            className="flex-1 p-6 overflow-auto focus:outline-none editor-content text-[#756D79] custom-scrollbar"
-            contentEditable
-            onInput={handleVisualChange}
-            onMouseUp={saveSelection}
-            onKeyUp={saveSelection}
-            onBlur={saveSelection}
-            suppressContentEditableWarning={true}
-          />
-        </section>
+                        {/* Editor */}
+                        <section className="flex-[1.5] flex flex-col bg-white border-r border-[#E4BAD4] lg:w-[45%]">
+                            <div className="p-2 bg-[#F6DFEB] border-b border-[#E4BAD4] flex flex-wrap gap-1 items-center shadow-sm">
+                                <ToolbarButton icon={<Icon name="undo" size={16}/>} onClick={() => execCommand('undo')} />
+                                <ToolbarButton icon={<Icon name="redo" size={16}/>} onClick={() => execCommand('redo')} />
+                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
+                                
+                                <select onChange={e => execCommand('fontName', e.target.value)} className="text-[10px] p-1 border rounded bg-[#F7F4E9]">
+                                    <option value="">Fonte</option>
+                                    <option value="Arial">Arial</option>
+                                    <option value="Times New Roman">Times</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
 
-        <section className="flex-1 flex flex-col bg-[#F7F4E9] min-h-[400px]">
-          <header className="px-4 py-3 bg-white border-b border-[#E4BAD4] flex items-center justify-between shadow-sm z-10">
-            <div className="flex items-center gap-2 font-semibold text-[#756D79]">
-              <MonitorPlay size={18} className="text-[#C490D1]" /> <span>Visualização Final</span>
-            </div>
-            <div className="flex bg-[#F7F4E9] p-1 rounded-lg border border-[#E4BAD4]">
-              <button onClick={() => setDevice('desktop')} className={`px-3 py-1 rounded-md text-xs font-bold ${device === 'desktop' ? 'bg-[#C490D1] text-white' : 'text-[#756D79]'}`}><Monitor size={14} className="inline mr-1"/> PC</button>
-              <button onClick={() => setDevice('mobile')} className={`px-3 py-1 rounded-md text-xs font-bold ${device === 'mobile' ? 'bg-[#C490D1] text-white' : 'text-[#756D79]'}`}><Smartphone size={14} className="inline mr-1"/> Celular</button>
-            </div>
-          </header>
-          
-          <div className="flex-1 overflow-auto flex justify-center p-6 bg-[#F7F4E9]/50 custom-scrollbar">
-            <div className={`transition-all duration-500 bg-white relative ${device === 'mobile' ? 'w-[340px] h-[600px] rounded-[3rem] border-[12px] border-[#756D79] shadow-2xl overflow-hidden mt-4' : 'w-full h-full rounded-lg border border-[#E4BAD4]'}`}>
-              {device === 'mobile' && <div className="absolute top-0 inset-x-0 h-6 bg-[#756D79] rounded-b-2xl w-32 mx-auto z-20" />}
-              <iframe srcDoc={iframeContent} className="w-full h-full border-0" title="preview" sandbox="allow-scripts allow-same-origin" />
-            </div>
-          </div>
-        </section>
-      </main>
+                                <select onChange={e => execCommand('fontSize', e.target.value)} className="text-[10px] p-1 border rounded bg-[#F7F4E9] w-12">
+                                    <option value="">Tam</option>
+                                    {[1,2,3,4,5,6,7].map(n => <option key={n} value={n}>{n}</option>)}
+                                </select>
 
-      <footer className="bg-[#756D79] text-[#F7F4E9] py-2 px-6 flex flex-col sm:flex-row items-center justify-between text-xs z-10">
-        <p className="font-semibold">Desenvolvido pelo professor Glauber Santiago — DAC/UFSCar</p>
-        <div className="flex gap-4">
-          <a href="https://servidores.ufscar.br/glauber/" target="_blank" rel="noreferrer" className="hover:text-[#A7D7C5]">servidores.ufscar.br/glauber/</a>
-          <a href="https://sites.google.com/view/glauberia" target="_blank" rel="noreferrer" className="hover:text-[#A7D7C5]">sites.google.com/view/glauberia</a>
-        </div>
-      </footer>
+                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
+                                <ToolbarButton icon={<Icon name="bold" size={16}/>} onClick={() => execCommand('bold')} />
+                                <ToolbarButton icon={<Icon name="italic" size={16}/>} onClick={() => execCommand('italic')} />
+                                <ToolbarButton icon={<Icon name="underline" size={16}/>} onClick={() => execCommand('underline')} />
 
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E4BAD4; border-radius: 10px; }
-        .editor-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
-        .editor-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
-        .editor-content h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
-        .editor-content p { margin: 1em 0; }
-        .editor-content ul { list-style-type: disc; padding-left: 40px; }
-        .editor-content ol { list-style-type: decimal; padding-left: 40px; }
-        .editor-content .toc ol, .editor-content .sumario ol { list-style-type: none !important; padding-left: 0 !important; }
-        .editor-content a { color: #3b82f6; text-decoration: underline; }
-      `}} />
-    </div>
-  );
-}
+                                <div className="relative">
+                                    <ToolbarButton icon={<Icon name="palette" size={16}/>} onClick={() => { saveSelection(); setShowColorPicker(!showColorPicker); }} />
+                                    {showColorPicker && (
+                                        <div className="absolute top-full left-0 mt-1 bg-white border p-3 rounded-lg shadow-xl z-50 w-64">
+                                            {paletas.map((p, i) => (
+                                                <div key={i} className="mb-2">
+                                                    <p className="text-[10px] font-bold mb-1 uppercase">{p.titulo}</p>
+                                                    <div className={`grid ${p.grid} gap-1`}>
+                                                        {p.cores.map(c => <button key={c} onClick={() => handleColor(c)} className="w-full aspect-square border" style={{backgroundColor: c}} />)}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            <div className="flex gap-1 mt-2 border-t pt-2">
+                                                <input value={customColor} onChange={e => setCustomColor(e.target.value)} className="flex-1 text-[10px] border p-1" placeholder="#HEX" />
+                                                <button onClick={() => handleColor(customColor)} className="bg-[#C490D1] text-white text-[10px] px-2 rounded">OK</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
-function ToolbarButton({ icon, onClick, tooltip }) {
-  return (
-    <button onMouseDown={e => e.preventDefault()} onClick={onClick} title={tooltip} className="p-1.5 flex items-center justify-center text-[#756D79] hover:bg-[#F6DFEB] hover:text-[#C490D1] rounded transition-colors focus:outline-none">
-      {icon}
-    </button>
-  );
-}
+                                <ToolbarButton icon={<Icon name="eraser" size={16}/>} onClick={() => execCommand('removeFormat')} label="LIMPAR" />
+                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
+
+                                <ToolbarButton icon={<span className="font-bold">P</span>} onClick={handleFormatParagraph} label="NORMAL" />
+                                <ToolbarButton icon={<Icon name="heading-1" size={16}/>} onClick={() => execCommand('formatBlock', 'h1')} />
+                                <ToolbarButton icon={<Icon name="heading-2" size={16}/>} onClick={() => execCommand('formatBlock', 'h2')} />
+
+                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
+                                <ToolbarButton icon={<Icon name="align-left" size={16}/>} onClick={() => execCommand('justifyLeft')} />
+                                <ToolbarButton icon={<Icon name="align-center" size={16}/>} onClick={() => execCommand('justifyCenter')} />
+                                <ToolbarButton icon={<Icon name="align-justify" size={16}/>} onClick={() => execCommand('justifyFull')} />
+                                
+                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
+                                <ToolbarButton icon={<Icon name="list" size={16}/>} onClick={() => execCommand('insertUnorderedList')} />
+                                <ToolbarButton icon={<Icon name="list-ordered" size={16}/>} onClick={() => execCommand('insertOrderedList')} />
+                                
+                                <div className="w-px h-5 bg-[#E4BAD4] mx-1"></div>
+                                <ToolbarButton icon={<Icon name="link" size={16}/>} onClick={handleInsertLink} />
+                                
+                                <div className="relative">
+                                    <ToolbarButton icon={<Icon name="music" size={16}/>} onClick={() => { saveSelection(); setShowMusicPicker(!showMusicPicker); }} />
+                                    {showMusicPicker && (
+                                        <div className="absolute top-full right-0 mt-1 bg-white border p-2 rounded shadow-xl z-50 w-64 max-h-48 overflow-y-auto grid grid-cols-6 gap-1 custom-scrollbar">
+                                            {simbolosMusicais.map((s, i) => <button key={i} onClick={() => { execCommand('insertText', s); setShowMusicPicker(false); }} className="hover:bg-gray-100 p-1 text-lg">{s}</button>)}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div 
+                                ref={visualEditorRef}
+                                contentEditable 
+                                onInput={handleVisualChange}
+                                onMouseUp={saveSelection}
+                                onKeyUp={saveSelection}
+                                className="flex-1 p-8 outline-none editor-content custom-scrollbar overflow-auto"
+                                suppressContentEditableWarning={true}
+                            />
+                        </section>
+
+                        {/* Preview */}
+                        <section className="flex-1 flex flex-col bg-[#F7F4E9]">
+                            <div className="px-4 py-2 bg-white border-b border-[#E4BAD4] flex justify-between items-center">
+                                <div className="text-xs font-bold uppercase flex items-center gap-2"><Icon name="monitor-play" size={14}/> Preview</div>
+                                <div className="flex bg-[#F7F4E9] p-0.5 rounded border border-[#E4BAD4]">
+                                    <button onClick={() => setDevice('desktop')} className={`px-2 py-1 text-[10px] font-bold rounded ${device === 'desktop' ? 'bg-[#C490D1] text-white' : ''}`}>PC</button>
+                                    <button onClick={() => setDevice('mobile')} className={`px-2 py-1 text-[10px] font-bold rounded ${device === 'mobile' ? 'bg-[#C490D1] text-white' : ''}`}>CEL</button>
+                                </div>
+                            </div>
+                            <div className="flex-1 flex justify-center p-6 overflow-auto custom-scrollbar">
+                                <div className={`transition-all duration-500 bg-white shadow-xl ${device === 'mobile' ? 'w-[340px] h-[600px] border-[12px] border-[#756D79] rounded-[2.5rem]' : 'w-full h-full border border-[#E4BAD4] rounded'}`}>
+                                    <iframe ref={iframeRef} className="w-full h-full border-0" title="preview" />
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+
+                    <footer className="bg-[#756D79] text-[#F7F4E9] py-2 px-6 flex justify-between items-center text-[10px]">
+                        <p>Desenvolvido pelo professor Glauber Santiago — DAC/UFSCar</p>
+                        <div className="flex gap-4">
+                            <a href="https://servidores.ufscar.br/glauber/" target="_blank">servidores.ufscar.br/glauber/</a>
+                            <a href="https://sites.google.com/view/glauberia" target="_blank">sites.google.com/view/glauberia</a>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
