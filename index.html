@@ -158,10 +158,8 @@ export default function App() {
     setShowMusicPicker(false);
   };
 
-  // Função inteligente e agressiva para transformar em Parágrafo (Texto Normal)
   const handleFormatParagraph = () => {
     restoreSelection();
-    
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
       let node = selection.anchorNode;
@@ -170,39 +168,28 @@ export default function App() {
       if (node && node.closest) {
         const ul = node.closest('ul');
         const ol = node.closest('ol');
-        
-        // Força a saída da lista usando os comandos nativos de liga/desliga
         if (ul) document.execCommand('insertUnorderedList', false, null);
         if (ol) document.execCommand('insertOrderedList', false, null);
       }
     }
-    
-    // Aplica o formato de parágrafo ('p' minúsculo sem brackets é o mais bem aceito por navegadores modernos)
     document.execCommand('formatBlock', false, 'p');
-    
     handleVisualChange();
     saveSelection();
   };
 
   const handleColorSelection = (hexColor) => {
     if (!hexColor) return;
-    
     let finalColor = hexColor.trim();
-    if (!finalColor.startsWith('#')) {
-      finalColor = '#' + finalColor;
-    }
+    if (!finalColor.startsWith('#')) finalColor = '#' + finalColor;
 
     restoreSelection();
-    
     document.execCommand('styleWithCSS', false, true);
     document.execCommand('foreColor', false, finalColor);
     
     setTimeout(() => {
       if (!visualEditorRef.current) return;
       let currentHtml = visualEditorRef.current.innerHTML;
-      
       const rgbRegex = /color:\s*rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/g;
-      
       if (rgbRegex.test(currentHtml)) {
         const newHtml = currentHtml.replace(rgbRegex, (match, r, g, b) => {
           const hex = '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase();
@@ -236,29 +223,18 @@ export default function App() {
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <style>
-        body { 
-          margin: 0; 
-          font-family: system-ui, -apple-system, sans-serif; 
-          word-wrap: break-word;
-          padding: 1rem;
-        }
-        .toc ol, .toc ul, .sumario ol, .sumario ul {
-          list-style-type: none !important;
-          padding-left: 0 !important;
-        }
+        body { margin: 0; font-family: system-ui, sans-serif; word-wrap: break-word; padding: 1rem; }
+        .toc ol, .toc ul, .sumario ol, .sumario ul { list-style-type: none !important; padding-left: 0 !important; }
         .toc a, .sumario a { text-decoration: none; }
         .toc a:hover, .sumario a:hover { text-decoration: underline; }
       </style>
     </head>
-    <body>
-      ${html}
-    </body>
+    <body>${html}</body>
     </html>
   `;
 
   return (
     <div className="h-screen w-full flex flex-col bg-[#F7F4E9] text-[#756D79] font-sans overflow-hidden">
-      {/* Cabeçalho Principal */}
       <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-3 bg-white border-b border-[#E4BAD4] shadow-sm z-10 gap-4 sm:gap-0">
         <div className="flex items-center gap-3">
           <div className="bg-[#C490D1] p-2 rounded-lg text-white">
@@ -269,7 +245,6 @@ export default function App() {
           </h1>
         </div>
         
-        {/* Área de Salvamento */}
         <div className="flex items-center gap-3">
           <div className="flex items-center bg-[#F7F4E9] rounded-md border border-[#E4BAD4] overflow-hidden focus-within:ring-2 focus-within:ring-[#C490D1]/50 transition-all">
             <input
@@ -279,64 +254,40 @@ export default function App() {
               className="bg-transparent px-3 py-1.5 text-sm outline-none text-[#756D79] w-32 placeholder-[#756D79]/50 font-medium"
               placeholder="nome-do-arquivo"
             />
-            <span className="px-3 py-1.5 bg-[#F6DFEB] text-[#756D79] text-sm border-l border-[#E4BAD4] font-semibold">
-              .html
-            </span>
+            <span className="px-3 py-1.5 bg-[#F6DFEB] text-[#756D79] text-sm border-l border-[#E4BAD4] font-semibold">.html</span>
           </div>
-          
-          <span className="hidden md:block text-xs text-[#756D79]/70 italic max-w-[100px] leading-tight">
-            * Você pode alterar o nome do arquivo
-          </span>
-
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-2 bg-[#A7D7C5] hover:brightness-95 text-[#756D79] px-4 py-1.5 rounded-md font-bold transition-all shadow-sm"
-          >
+          <span className="hidden md:block text-xs text-[#756D79]/70 italic max-w-[100px] leading-tight">* Pode mudar o nome</span>
+          <button onClick={handleSave} className="flex items-center gap-2 bg-[#A7D7C5] hover:brightness-95 text-[#756D79] px-4 py-1.5 rounded-md font-bold transition-all shadow-sm">
             <Save size={18} /> Salvar
           </button>
         </div>
       </header>
 
-      {/* Área Principal */}
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        
-        {/* COLUNA 1: Código HTML */}
         <section className="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-[#E4BAD4] bg-gray-900 min-h-[300px]">
-          <header className="px-4 py-3 bg-[#756D79] border-b border-[#756D79] flex items-center gap-2 text-[#F7F4E9] font-semibold shadow-sm">
-            <Code2 size={18} className="text-[#A7D7C5]" /> 
-            <span>Código HTML</span>
+          <header className="px-4 py-3 bg-[#756D79] border-b border-[#756D79] flex items-center gap-2 text-[#F7F4E9] font-semibold">
+            <Code2 size={18} className="text-[#A7D7C5]" /> <span>Código HTML</span>
           </header>
           <textarea
             value={html}
             onChange={handleCodeChange}
-            className="flex-1 w-full p-4 font-mono text-sm bg-gray-900 text-[#A7D7C5] focus:outline-none resize-none leading-relaxed custom-scrollbar"
+            className="flex-1 w-full p-4 font-mono text-sm bg-gray-900 text-[#A7D7C5] focus:outline-none resize-none custom-scrollbar"
             spellCheck={false}
-            placeholder="Digite seu código HTML aqui..."
           />
         </section>
 
-        {/* COLUNA 2: Conteúdo Editável (Visual) */}
         <section className="flex-1.5 flex flex-col border-b lg:border-b-0 lg:border-r border-[#E4BAD4] bg-white min-h-[300px] lg:w-[45%]">
           <header className="px-4 py-3 bg-[#F6DFEB] border-b border-[#E4BAD4] flex flex-col shadow-sm z-10 gap-2">
             <div className="flex items-center gap-2 font-semibold text-[#756D79]">
-              <Type size={18} className="text-[#C490D1]" /> 
-              <span>Editor Visual</span>
+              <Type size={18} className="text-[#C490D1]" /> <span>Editor Visual</span>
             </div>
             
-            {/* Barra de Ferramentas Expandida */}
             <div className="flex flex-wrap gap-1 bg-white border border-[#E4BAD4] p-1.5 rounded-md shadow-sm items-center">
-              
-              {/* Histórico */}
               <ToolbarButton icon={<Undo size={16} />} onClick={() => execCommand('undo')} tooltip="Desfazer" />
               <ToolbarButton icon={<Redo size={16} />} onClick={() => execCommand('redo')} tooltip="Refazer" />
               <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
 
-              {/* Fonte e Tamanho */}
-              <select 
-                onChange={(e) => execCommand('fontName', e.target.value)} 
-                className="text-xs text-[#756D79] bg-[#F7F4E9] border border-[#E4BAD4] rounded px-1 py-1 outline-none cursor-pointer hover:bg-[#F6DFEB]"
-                title="Tipo de Fonte"
-              >
+              <select onChange={(e) => execCommand('fontName', e.target.value)} className="text-xs text-[#756D79] bg-[#F7F4E9] border border-[#E4BAD4] rounded px-1 py-1 outline-none">
                 <option value="">Fonte...</option>
                 <option value="Arial">Arial</option>
                 <option value="Courier New">Courier New</option>
@@ -345,200 +296,94 @@ export default function App() {
                 <option value="Verdana">Verdana</option>
               </select>
 
-              <select 
-                onChange={(e) => execCommand('fontSize', e.target.value)} 
-                className="text-xs text-[#756D79] bg-[#F7F4E9] border border-[#E4BAD4] rounded px-1 py-1 outline-none cursor-pointer hover:bg-[#F6DFEB] ml-1"
-                title="Tamanho da Fonte"
-              >
+              <select onChange={(e) => execCommand('fontSize', e.target.value)} className="text-xs text-[#756D79] bg-[#F7F4E9] border border-[#E4BAD4] rounded px-1 py-1 outline-none ml-1">
                 <option value="">Tamanho...</option>
-                <option value="1">Muito Pequeno</option>
-                <option value="2">Pequeno</option>
-                <option value="3">Normal</option>
-                <option value="4">Grande</option>
-                <option value="5">Muito Grande</option>
-                <option value="6">Enorme</option>
-                <option value="7">Gigante</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
               </select>
               <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
               
-              {/* Formatação Básica */}
               <ToolbarButton icon={<Bold size={16} />} onClick={() => execCommand('bold')} tooltip="Negrito" />
               <ToolbarButton icon={<Italic size={16} />} onClick={() => execCommand('italic')} tooltip="Itálico" />
               <ToolbarButton icon={<Underline size={16} />} onClick={() => execCommand('underline')} tooltip="Sublinhado" />
               <ToolbarButton icon={<Strikethrough size={16} />} onClick={() => execCommand('strikeThrough')} tooltip="Tachado" />
               
-              {/* Seletor de Cores Aprimorado */}
               <div className="relative">
-                <ToolbarButton 
-                  icon={<Palette size={16} />} 
-                  onClick={() => { 
-                    saveSelection(); 
-                    setShowColorPicker(!showColorPicker); 
-                    setShowEmojiPicker(false);
-                    setShowMusicPicker(false);
-                  }} 
-                  tooltip="Cor do Texto" 
-                />
-                
+                <ToolbarButton icon={<Palette size={16} />} onClick={() => { saveSelection(); setShowColorPicker(!showColorPicker); setShowEmojiPicker(false); setShowMusicPicker(false); }} tooltip="Cor do Texto" />
                 {showColorPicker && (
-                  <div className="absolute top-full right-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-3 w-[300px] z-50 max-h-96 overflow-y-auto custom-scrollbar">
-                    
-                    {paletasDeCores.map((paleta, index) => (
-                      <div key={index} className="mb-3">
-                        <p className="text-xs font-bold text-[#C490D1] mb-1.5">{paleta.titulo}</p>
-                        <div className={`grid ${paleta.grid} gap-1`}>
-                          {paleta.cores.map(hex => (
-                            <button 
-                              key={hex}
-                              onClick={() => handleColorSelection(hex)}
-                              className="w-full aspect-square rounded border border-gray-200 shadow-sm hover:scale-110 transition-transform"
-                              style={{ backgroundColor: hex }}
-                              title={hex}
-                            />
-                          ))}
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-3 w-[280px] z-50 max-h-96 overflow-y-auto custom-scrollbar">
+                    {paletasDeCores.map((p, i) => (
+                      <div key={i} className="mb-2">
+                        <p className="text-[10px] font-bold text-[#C490D1] mb-1">{p.titulo}</p>
+                        <div className={`grid ${p.grid} gap-1`}>
+                          {p.cores.map(c => <button key={c} onClick={() => handleColorSelection(c)} className="w-full aspect-square rounded border border-gray-200" style={{ backgroundColor: c }} />)}
                         </div>
                       </div>
                     ))}
-
-                    {/* Input Customizado de Hexadecimal */}
-                    <div className="mt-2 pt-3 border-t border-[#F6DFEB]">
-                      <p className="text-xs font-bold text-[#C490D1] mb-1.5">Cor Customizada (HEX)</p>
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          value={customColor} 
-                          onChange={(e) => setCustomColor(e.target.value)} 
-                          onKeyDown={(e) => e.key === 'Enter' && handleColorSelection(customColor)}
-                          className="flex-1 bg-[#F7F4E9] border border-[#E4BAD4] rounded px-2 py-1 text-sm font-mono text-[#756D79] outline-none focus:ring-1 focus:ring-[#C490D1]"
-                          placeholder="#000000"
-                        />
-                        <button 
-                          onClick={() => handleColorSelection(customColor)}
-                          className="bg-[#C490D1] hover:bg-[#b07ebf] text-white px-3 py-1 rounded text-sm font-semibold transition-colors"
-                        >
-                          Aplicar
-                        </button>
-                      </div>
+                    <div className="mt-2 pt-2 border-t border-[#F6DFEB] flex gap-1">
+                      <input type="text" value={customColor} onChange={e => setCustomColor(e.target.value)} className="flex-1 text-xs border border-[#E4BAD4] p-1 rounded" placeholder="#HEX" />
+                      <button onClick={() => handleColorSelection(customColor)} className="bg-[#C490D1] text-white text-[10px] px-2 rounded font-bold">OK</button>
                     </div>
-
                   </div>
                 )}
               </div>
 
-              {/* Botão de Limpar Formatação Destacado */}
               <ToolbarButton 
-                icon={<div className="flex items-center gap-1"><Eraser size={16} /><span className="text-[10px] font-bold uppercase tracking-tight">Limpar</span></div>} 
+                icon={<div className="flex items-center gap-1"><Eraser size={14} /><span className="text-[9px] font-bold">LIMPAR</span></div>} 
                 onClick={() => execCommand('removeFormat')} 
-                tooltip="Limpar Formatação (Cores, Negrito, Itálico, etc)" 
               />
               <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
               
-              {/* Estrutura (Títulos e Parágrafo) - Botões Destacados */}
               <ToolbarButton 
-                icon={<div className="flex items-center gap-1"><span className="font-bold font-serif text-sm">P</span><span className="text-[10px] font-bold uppercase tracking-tight">Normal</span></div>} 
+                icon={<div className="flex items-center gap-1"><span className="font-bold text-xs">P</span><span className="text-[9px] font-bold">NORMAL</span></div>} 
                 onClick={handleFormatParagraph} 
-                tooltip="Texto Normal (Remove Títulos e quebra Listas)" 
               />
-              <ToolbarButton icon={<Heading1 size={16} />} onClick={() => execCommand('formatBlock', 'h1')} tooltip="Título 1" />
-              <ToolbarButton icon={<Heading2 size={16} />} onClick={() => execCommand('formatBlock', 'h2')} tooltip="Título 2" />
-              <ToolbarButton icon={<Heading3 size={16} />} onClick={() => execCommand('formatBlock', 'h3')} tooltip="Título 3" />
+              <ToolbarButton icon={<Heading1 size={14} />} onClick={() => execCommand('formatBlock', 'h1')} />
+              <ToolbarButton icon={<Heading2 size={14} />} onClick={() => execCommand('formatBlock', 'h2')} />
+              <ToolbarButton icon={<Heading3 size={14} />} onClick={() => execCommand('formatBlock', 'h3')} />
               <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
               
-              {/* Alinhamento */}
-              <ToolbarButton icon={<AlignLeft size={16} />} onClick={() => execCommand('justifyLeft')} tooltip="Alinhar à Esquerda" />
-              <ToolbarButton icon={<AlignCenter size={16} />} onClick={() => execCommand('justifyCenter')} tooltip="Centralizar" />
-              <ToolbarButton icon={<AlignRight size={16} />} onClick={() => execCommand('justifyRight')} tooltip="Alinhar à Direita" />
-              <ToolbarButton icon={<AlignJustify size={16} />} onClick={() => execCommand('justifyFull')} tooltip="Justificar Texto" />
+              <ToolbarButton icon={<AlignLeft size={16} />} onClick={() => execCommand('justifyLeft')} />
+              <ToolbarButton icon={<AlignCenter size={16} />} onClick={() => execCommand('justifyCenter')} />
+              <ToolbarButton icon={<AlignRight size={16} />} onClick={() => execCommand('justifyRight')} />
+              <ToolbarButton icon={<AlignJustify size={16} />} onClick={() => execCommand('justifyFull')} />
               <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
               
-              {/* Listas e Indentação */}
-              <ToolbarButton icon={<List size={16} />} onClick={() => execCommand('insertUnorderedList')} tooltip="Lista com Marcadores" />
-              <ToolbarButton icon={<ListOrdered size={16} />} onClick={() => execCommand('insertOrderedList')} tooltip="Lista Numerada" />
-              <ToolbarButton icon={<Outdent size={16} />} onClick={() => execCommand('outdent')} tooltip="Diminuir Recuo" />
-              <ToolbarButton icon={<Indent size={16} />} onClick={() => execCommand('indent')} tooltip="Aumentar Recuo" />
+              <ToolbarButton icon={<List size={16} />} onClick={() => execCommand('insertUnorderedList')} />
+              <ToolbarButton icon={<ListOrdered size={16} />} onClick={() => execCommand('insertOrderedList')} />
+              <ToolbarButton icon={<Outdent size={16} />} onClick={() => execCommand('outdent')} />
+              <ToolbarButton icon={<Indent size={16} />} onClick={() => execCommand('indent')} />
               <div className="w-px h-5 bg-[#F6DFEB] mx-1"></div>
               
-              {/* Links e Extras */}
-              <ToolbarButton icon={<LinkIcon size={16} />} onClick={handleInsertLink} tooltip="Inserir Link" />
-              <ToolbarButton icon={<Unlink size={16} />} onClick={() => execCommand('unlink')} tooltip="Remover Link" />
+              <ToolbarButton icon={<LinkIcon size={16} />} onClick={handleInsertLink} />
+              <ToolbarButton icon={<Unlink size={16} />} onClick={() => execCommand('unlink')} />
               
-              {/* Símbolos Musicais (Texto) */}
               <div className="relative">
-                <ToolbarButton 
-                  icon={<Music size={16} />} 
-                  onClick={() => { 
-                    saveSelection(); 
-                    setShowMusicPicker(!showMusicPicker); 
-                    setShowEmojiPicker(false);
-                    setShowColorPicker(false);
-                  }} 
-                  tooltip="Inserir Símbolo Musical" 
-                />
-                
+                <ToolbarButton icon={<Music size={16} />} onClick={() => { saveSelection(); setShowMusicPicker(!showMusicPicker); setShowEmojiPicker(false); setShowColorPicker(false); }} />
                 {showMusicPicker && (
-                  <div className="absolute top-full right-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-3 w-[320px] z-50 max-h-80 overflow-y-auto custom-scrollbar">
-                    <div className="mb-1">
-                      <p className="text-xs font-bold text-[#C490D1] mb-2">Símbolos Musicais (Cor/Tamanho)</p>
-                      <div className="grid grid-cols-8 gap-1">
-                        {simbolosMusicais.map((emoji, index) => (
-                          <button key={`sym-${index}`} onClick={() => handleInsertEmoji(emoji)} className="hover:bg-[#F6DFEB] p-1 rounded text-xl flex items-center justify-center text-[#756D79]">
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="absolute top-full right-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-2 w-[240px] z-50 max-h-60 overflow-y-auto grid grid-cols-6 gap-1 custom-scrollbar">
+                    {simbolosMusicais.map((s, i) => <button key={i} onClick={() => handleInsertEmoji(s)} className="p-1 hover:bg-[#F6DFEB] rounded text-lg">{s}</button>)}
                   </div>
                 )}
               </div>
 
-              {/* Emojis e Símbolos Gráficos */}
               <div className="relative">
-                <ToolbarButton 
-                  icon={<Smile size={16} />} 
-                  onClick={() => { 
-                    saveSelection(); 
-                    setShowEmojiPicker(!showEmojiPicker); 
-                    setShowMusicPicker(false);
-                    setShowColorPicker(false);
-                  }} 
-                  tooltip="Inserir Emoji" 
-                />
-                
+                <ToolbarButton icon={<Smile size={16} />} onClick={() => { saveSelection(); setShowEmojiPicker(!showEmojiPicker); setShowMusicPicker(false); setShowColorPicker(false); }} />
                 {showEmojiPicker && (
-                  <div className="absolute top-full right-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-3 w-[240px] z-50 max-h-80 overflow-y-auto custom-scrollbar">
-                    
-                    <div className="mb-3">
-                      <p className="text-xs font-bold text-[#C490D1] mb-1">Instrumentos e Emojis Musicais</p>
-                      <div className="grid grid-cols-5 gap-1">
-                        {emojisMusicais.map(emoji => (
-                          <button key={emoji} onClick={() => handleInsertEmoji(emoji)} className="hover:bg-[#F6DFEB] p-1 rounded text-lg flex items-center justify-center">
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
+                  <div className="absolute top-full right-0 mt-1 bg-white border border-[#E4BAD4] rounded-lg shadow-xl p-2 w-[200px] z-50 max-h-60 overflow-y-auto custom-scrollbar">
+                    <div className="grid grid-cols-5 gap-1">
+                      {emojisMusicais.map(e => <button key={e} onClick={() => handleInsertEmoji(e)} className="p-1 hover:bg-[#F6DFEB] rounded">{e}</button>)}
+                      {emojisComuns.map(e => <button key={e} onClick={() => handleInsertEmoji(e)} className="p-1 hover:bg-[#F6DFEB] rounded">{e}</button>)}
                     </div>
-
-                    <div>
-                      <p className="text-xs font-bold text-[#C490D1] mb-1">Comuns</p>
-                      <div className="grid grid-cols-5 gap-1">
-                        {emojisComuns.map(emoji => (
-                          <button key={emoji} onClick={() => handleInsertEmoji(emoji)} className="hover:bg-[#F6DFEB] p-1 rounded text-lg flex items-center justify-center">
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
                   </div>
                 )}
               </div>
-
             </div>
           </header>
           
           <div
             ref={visualEditorRef}
-            className="flex-1 p-6 overflow-auto focus:outline-none editor-content max-w-none text-[#756D79] custom-scrollbar"
+            className="flex-1 p-6 overflow-auto focus:outline-none editor-content text-[#756D79] custom-scrollbar"
             contentEditable
             onInput={handleVisualChange}
             onMouseUp={saveSelection}
@@ -548,160 +393,45 @@ export default function App() {
           />
         </section>
 
-        {/* COLUNA 3: Visualização (Preview) */}
         <section className="flex-1 flex flex-col bg-[#F7F4E9] min-h-[400px]">
           <header className="px-4 py-3 bg-white border-b border-[#E4BAD4] flex items-center justify-between shadow-sm z-10">
             <div className="flex items-center gap-2 font-semibold text-[#756D79]">
-              <MonitorPlay size={18} className="text-[#C490D1]" /> 
-              <span>Visualização Final</span>
+              <MonitorPlay size={18} className="text-[#C490D1]" /> <span>Visualização Final</span>
             </div>
-            
-            {/* Toggle Celular / PC */}
             <div className="flex bg-[#F7F4E9] p-1 rounded-lg border border-[#E4BAD4]">
-              <button
-                onClick={() => setDevice('desktop')}
-                className={`px-3 py-1.5 rounded-md flex items-center gap-2 text-sm font-medium transition-all ${
-                  device === 'desktop' 
-                    ? 'bg-[#C490D1] text-white shadow-sm border border-[#C490D1]' 
-                    : 'text-[#756D79] hover:bg-[#F6DFEB]'
-                }`}
-              >
-                <Monitor size={16} /> PC
-              </button>
-              <button
-                onClick={() => setDevice('mobile')}
-                className={`px-3 py-1.5 rounded-md flex items-center gap-2 text-sm font-medium transition-all ${
-                  device === 'mobile' 
-                    ? 'bg-[#C490D1] text-white shadow-sm border border-[#C490D1]' 
-                    : 'text-[#756D79] hover:bg-[#F6DFEB]'
-                }`}
-              >
-                <Smartphone size={16} /> Celular
-              </button>
+              <button onClick={() => setDevice('desktop')} className={`px-3 py-1 rounded-md text-xs font-bold ${device === 'desktop' ? 'bg-[#C490D1] text-white' : 'text-[#756D79]'}`}><Monitor size={14} className="inline mr-1"/> PC</button>
+              <button onClick={() => setDevice('mobile')} className={`px-3 py-1 rounded-md text-xs font-bold ${device === 'mobile' ? 'bg-[#C490D1] text-white' : 'text-[#756D79]'}`}><Smartphone size={14} className="inline mr-1"/> Celular</button>
             </div>
           </header>
           
-          <div className="flex-1 overflow-auto flex justify-center items-start p-6 bg-[#F7F4E9]/50 custom-scrollbar">
-            {/* Container Responsivo com Animação */}
-            <div 
-              className={`transition-all duration-500 ease-in-out bg-white relative ${
-                device === 'mobile' 
-                  ? 'w-[340px] h-[680px] rounded-[3rem] border-[12px] border-[#756D79] shadow-2xl mt-4 flex flex-col overflow-hidden ring-4 ring-[#E4BAD4]/30' 
-                  : 'w-full h-full rounded-lg shadow-md border border-[#E4BAD4] flex flex-col'
-              }`}
-            >
-              {/* Detalhes do Celular (Notch e Barra inferior) */}
-              {device === 'mobile' && (
-                <>
-                  <div className="absolute top-0 inset-x-0 h-7 bg-[#756D79] rounded-b-3xl w-40 mx-auto z-20 flex justify-center items-center">
-                    <div className="w-12 h-1.5 bg-[#4a444d] rounded-full"></div>
-                    <div className="w-2 h-2 bg-[#C490D1]/50 rounded-full absolute right-6"></div>
-                  </div>
-                  <div className="h-6 w-full bg-[#F7F4E9] border-b border-[#E4BAD4]/50 flex items-center px-4 justify-between z-10 pt-2 text-[10px] font-medium text-[#756D79]">
-                    <span>9:41</span>
-                    <div className="flex gap-1">
-                      <div className="w-3 h-2 bg-[#756D79] rounded-sm"></div>
-                      <div className="w-4 h-2 bg-[#756D79] rounded-sm"></div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Iframe que carrega o HTML */}
-              <iframe
-                srcDoc={iframeContent}
-                className="flex-1 w-full border-0 bg-white"
-                title="preview"
-                sandbox="allow-scripts allow-modals allow-same-origin"
-              />
-
-              {device === 'mobile' && (
-                 <div className="h-8 w-full bg-white border-t border-[#F7F4E9] flex items-center justify-center z-10 pb-1">
-                    <div className="w-32 h-1 bg-[#E4BAD4] rounded-full"></div>
-                 </div>
-              )}
+          <div className="flex-1 overflow-auto flex justify-center p-6 bg-[#F7F4E9]/50 custom-scrollbar">
+            <div className={`transition-all duration-500 bg-white relative ${device === 'mobile' ? 'w-[340px] h-[600px] rounded-[3rem] border-[12px] border-[#756D79] shadow-2xl overflow-hidden mt-4' : 'w-full h-full rounded-lg border border-[#E4BAD4]'}`}>
+              {device === 'mobile' && <div className="absolute top-0 inset-x-0 h-6 bg-[#756D79] rounded-b-2xl w-32 mx-auto z-20" />}
+              <iframe srcDoc={iframeContent} className="w-full h-full border-0" title="preview" sandbox="allow-scripts allow-same-origin" />
             </div>
           </div>
         </section>
-
       </main>
 
-      {/* RODAPÉ */}
-      <footer className="bg-[#756D79] text-[#F7F4E9] py-3 px-6 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-        <p className="font-semibold mb-2 sm:mb-0">
-          Desenvolvido pelo professor Glauber Santiago — DAC/UFSCar
-        </p>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-center">
-          <a 
-            href="https://servidores.ufscar.br/glauber/" 
-            target="_blank" 
-            rel="noreferrer" 
-            className="flex items-center justify-center gap-1 hover:text-[#A7D7C5] transition-colors"
-          >
-            <span>🌐</span> servidores.ufscar.br/glauber/
-          </a>
-          <a 
-            href="https://sites.google.com/view/glauberia" 
-            target="_blank" 
-            rel="noreferrer" 
-            className="flex items-center justify-center gap-1 hover:text-[#A7D7C5] transition-colors"
-          >
-            <span>🌐</span> sites.google.com/view/glauberia
-          </a>
+      <footer className="bg-[#756D79] text-[#F7F4E9] py-2 px-6 flex flex-col sm:flex-row items-center justify-between text-xs z-10">
+        <p className="font-semibold">Desenvolvido pelo professor Glauber Santiago — DAC/UFSCar</p>
+        <div className="flex gap-4">
+          <a href="https://servidores.ufscar.br/glauber/" target="_blank" rel="noreferrer" className="hover:text-[#A7D7C5]">servidores.ufscar.br/glauber/</a>
+          <a href="https://sites.google.com/view/glauberia" target="_blank" rel="noreferrer" className="hover:text-[#A7D7C5]">sites.google.com/view/glauberia</a>
         </div>
       </footer>
 
-      {/* CSS Customizado */}
       <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #E4BAD4;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #C490D1;
-        }
-
-        /* Restaura estilos nativos do HTML para o Editor Visual */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E4BAD4; border-radius: 10px; }
         .editor-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
         .editor-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
         .editor-content h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
-        .editor-content h4 { font-size: 1em; font-weight: bold; margin: 1.33em 0; }
-        .editor-content h5 { font-size: 0.83em; font-weight: bold; margin: 1.67em 0; }
-        .editor-content h6 { font-size: 0.67em; font-weight: bold; margin: 2.33em 0; }
         .editor-content p { margin: 1em 0; }
-        
-        .editor-content .toc ul, .editor-content .toc ol,
-        .editor-content .sumario ul, .editor-content .sumario ol { 
-          list-style-type: none !important; 
-          padding-left: 0 !important; 
-        }
-        
-        .editor-content ul, .editor-content ol { padding-left: 40px; margin: 1em 0; }
-        .editor-content ul ul, .editor-content ol ul, .editor-content ul ol, .editor-content ol ol { margin: 0; }
-        
-        .editor-content ul { list-style-type: disc; }
-        .editor-content ul ul { list-style-type: circle; }
-        .editor-content ul ul ul { list-style-type: square; }
-        
-        .editor-content ol { list-style-type: decimal; }
-        .editor-content ol ol { list-style-type: lower-alpha; }
-        .editor-content ol ol ol { list-style-type: lower-roman; }
-        .editor-content li { display: list-item; }
-        
-        .editor-content details { margin: 1em 0; padding: 0.5em 1em; background-color: #fcfcfc; border: 1px solid #E4BAD4; border-radius: 6px; }
-        .editor-content summary { font-weight: bold; cursor: pointer; display: list-item; outline: none; margin-left: 10px; }
-        .editor-content summary:hover { color: #C490D1; }
-
+        .editor-content ul { list-style-type: disc; padding-left: 40px; }
+        .editor-content ol { list-style-type: decimal; padding-left: 40px; }
+        .editor-content .toc ol, .editor-content .sumario ol { list-style-type: none !important; padding-left: 0 !important; }
         .editor-content a { color: #3b82f6; text-decoration: underline; }
-        .editor-content b, .editor-content strong { font-weight: bold; }
-        .editor-content i, .editor-content em { font-style: italic; }
       `}} />
     </div>
   );
@@ -709,12 +439,7 @@ export default function App() {
 
 function ToolbarButton({ icon, onClick, tooltip }) {
   return (
-    <button 
-      onMouseDown={(e) => { e.preventDefault(); }}
-      onClick={onClick} 
-      title={tooltip}
-      className="p-1.5 flex items-center justify-center text-[#756D79] hover:bg-[#F6DFEB] hover:text-[#C490D1] rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#C490D1]/50"
-    >
+    <button onMouseDown={e => e.preventDefault()} onClick={onClick} title={tooltip} className="p-1.5 flex items-center justify-center text-[#756D79] hover:bg-[#F6DFEB] hover:text-[#C490D1] rounded transition-colors focus:outline-none">
       {icon}
     </button>
   );
