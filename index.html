@@ -102,7 +102,7 @@
                 { titulo: 'Padrão', grid: 'grid-cols-8', cores: ['#000000', '#434343', '#666666', '#999999', '#CCCCCC', '#FFFFFF', '#FF0000', '#FF9900', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#9900FF', '#FF00FF'] }
             ];
 
-            // Sincronização do Preview via Iframe Document Write (mais estável que srcDoc)
+            // Sincronização do Preview via Iframe Document Write
             useEffect(() => {
                 const iframe = iframeRef.current;
                 if (iframe) {
@@ -127,12 +127,18 @@
                 }
             }, [html]);
 
-            // Sincronização do Editor Visual quando o HTML muda
+            // Sincronização do Editor Visual quando o HTML muda externamente
             useEffect(() => {
                 if (visualEditorRef.current && visualEditorRef.current.innerHTML !== html) {
                     visualEditorRef.current.innerHTML = html;
                 }
             }, [html]);
+
+            const handleVisualChange = () => {
+                if (visualEditorRef.current) {
+                    setHtml(visualEditorRef.current.innerHTML);
+                }
+            };
 
             const saveSelection = () => {
                 const sel = window.getSelection();
@@ -153,7 +159,7 @@
             const execCommand = (cmd, val = null) => {
                 restoreSelection();
                 document.execCommand(cmd, false, val);
-                setHtml(visualEditorRef.current.innerHTML);
+                handleVisualChange();
                 saveSelection();
             };
 
@@ -170,12 +176,20 @@
                     }
                 }
                 document.execCommand('formatBlock', false, 'p');
-                setHtml(visualEditorRef.current.innerHTML);
+                handleVisualChange();
             };
 
             const handleInsertLink = () => {
                 const url = prompt('URL:', 'https://');
                 if (url) execCommand('createLink', url);
+            };
+
+            const handleInsertEmoji = (emoji) => {
+                restoreSelection();
+                document.execCommand('insertText', false, emoji);
+                handleVisualChange();
+                setShowEmojiPicker(false);
+                setShowMusicPicker(false);
             };
 
             const handleColor = (color) => {
@@ -294,7 +308,7 @@
                                     <ToolbarButton icon={<Icon name="music" size={16}/>} onClick={() => { saveSelection(); setShowMusicPicker(!showMusicPicker); }} />
                                     {showMusicPicker && (
                                         <div className="absolute top-full right-0 mt-1 bg-white border p-2 rounded shadow-xl z-50 w-64 max-h-48 overflow-y-auto grid grid-cols-6 gap-1 custom-scrollbar">
-                                            {simbolosMusicais.map((s, i) => <button key={i} onClick={() => { execCommand('insertText', s); setShowMusicPicker(false); }} className="hover:bg-gray-100 p-1 text-lg">{s}</button>)}
+                                            {simbolosMusicais.map((s, i) => <button key={i} onClick={() => { handleInsertEmoji(s); }} className="hover:bg-gray-100 p-1 text-lg">{s}</button>)}
                                         </div>
                                     )}
                                 </div>
