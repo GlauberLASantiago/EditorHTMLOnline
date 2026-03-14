@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C490D1">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1157/1157109.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GlauWeb Html Editor</title>
@@ -656,6 +659,13 @@ ${html}
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('GlauWeb PWA Ativo!'))
+      .catch(err => console.log('Erro no PWA:', err));
+  }
 </script>
 </body>
 </html>
