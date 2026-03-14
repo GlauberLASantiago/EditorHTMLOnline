@@ -1,0 +1,17 @@
+{
+  "name": "GlauWeb Html Editor",
+  "short_name": "GlauWeb",
+  "description": "Editor HTML visual e de código para criação de conteúdos rápidos.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F7F4E9",
+  "theme_color": "#C490D1",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1157/1157109.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
