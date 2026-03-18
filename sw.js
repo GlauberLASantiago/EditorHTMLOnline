@@ -1,4 +1,4 @@
-const CACHE_NAME = 'glauweb-editor-v1';
+const CACHE_NAME = 'glauweb-editor-v2'; // Alterou a versão, o navegador sabe que atualizou!
 const ASSETS = [
   './',
   './index.html',
