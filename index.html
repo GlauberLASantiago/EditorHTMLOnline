@@ -1,257 +1,609 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C490D1">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1157/1157109.png">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GlauWeb Html Editor</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:#F7F4E9;--bg2:#FFFFFF;--bg3:#F6DFEB;
-  --bd:#E4BAD4;--tx:#2D2830;--tx2:#756D79;
-  --acc:#C490D1;--accl:#E4BAD4;--grn:#A7D7C5;
-  --codebg:#1a1730;--codetx:#b8f0a0;
-  --hdr:#FFFFFF;--tbr:#F6DFEB;--ftr:#5a5360;
-}
-.dk {
-  --bg:#151222;--bg2:#1e1a2e;--bg3:#27223a;
-  --bd:#3a3350;--tx:#eae4f5;--tx2:#9b8fad;
-  --acc:#c490d1;--accl:#4d3d62;--grn:#5daa97;
-  --codebg:#0e0c1a;--codetx:#b8f0a0;
-  --hdr:#1a1628;--tbr:#24203a;--ftr:#0e0c1a;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body,#root{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif}
-body{background:var(--bg);color:var(--tx)}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--accl);border-radius:8px}
-::-webkit-scrollbar-thumb:hover{background:var(--acc)}
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#C490D1">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1157/1157109.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlauWeb Html Editor</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F7F4E9;
+            --bg2: #FFFFFF;
+            --bg3: #F6DFEB;
+            --bd: #E4BAD4;
+            --tx: #2D2830;
+            --tx2: #756D79;
+            --acc: #C490D1;
+            --accl: #E4BAD4;
+            --grn: #A7D7C5;
+            --codebg: #1a1730;
+            --codetx: #b8f0a0;
+            --hdr: #FFFFFF;
+            --tbr: #F6DFEB;
+            --ftr: #5a5360;
+        }
 
-/* Editor visual */
-.ec h1{font-size:2em;font-weight:bold;margin:.5em 0;line-height:1.2}
-.ec h2{font-size:1.5em;font-weight:bold;margin:.5em 0;line-height:1.2}
-.ec h3{font-size:1.17em;font-weight:bold;margin:.5em 0;line-height:1.2}
-.ec h4{font-size:1em;font-weight:bold;margin:.5em 0}
-.ec p{margin:.7em 0;line-height:1.65}
-.ec ul{list-style:disc;padding-left:32px;margin:.7em 0}
-.ec ol{list-style:decimal;padding-left:32px;margin:.7em 0}
-.ec li{display:list-item;margin:.2em 0;line-height:1.5}
-.ec a{color:#4a90d9;text-decoration:underline}
-.ec table{border-collapse:collapse;margin:1em 0;width:100%;max-width:100%}
-.ec td,.ec th{border:1px solid var(--bd);padding:6px 10px}
-.ec th{background:var(--bg3);font-weight:700}
-.ec blockquote{border-left:4px solid var(--acc);padding:4px 0 4px 16px;margin:.8em 0;font-style:italic;color:var(--tx2)}
-.ec code{background:rgba(0,0,0,.1);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.88em}
-.ec pre{background:#1a1730;color:#b8f0a0;padding:14px;border-radius:8px;overflow-x:auto;margin:.8em 0;font-family:'JetBrains Mono',monospace;font-size:.88em}
-.ec hr{border:none;border-top:2px solid var(--bd);margin:1.2em 0}
-.ec img{max-width:100%;height:auto}
-.ec .toc ol,.ec .toc ul,.ec .sumario ol,.ec .sumario ul{list-style:none!important;padding-left:0!important}
+        .dk {
+            --bg: #151222;
+            --bg2: #1e1a2e;
+            --bg3: #27223a;
+            --bd: #3a3350;
+            --tx: #eae4f5;
+            --tx2: #9b8fad;
+            --acc: #c490d1;
+            --accl: #4d3d62;
+            --grn: #5daa97;
+            --codebg: #0e0c1a;
+            --codetx: #b8f0a0;
+            --hdr: #1a1628;
+            --tbr: #24203a;
+            --ftr: #0e0c1a;
+        }
 
-/* Toolbar buttons - Ajustados para melhor leitura */
-.tb{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px;border:none;border-radius:7px;cursor:pointer;background:transparent;color:var(--tx2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;transition:background .13s,color .13s;white-space:nowrap;flex-shrink:0}
-.tb:hover{background:var(--accl);color:var(--acc)}
-.tb.on{background:var(--accl);color:var(--acc)}
-.sep{width:1px;height:24px;background:var(--bd);margin:0 4px;flex-shrink:0}
-select.tbs{padding:5px 8px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--tx);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;height:32px}
-select.tbs:focus{outline:2px solid var(--acc)}
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
 
-/* Popover */
-.pop{position:absolute;top:calc(100% + 7px);left:0;background:var(--bg2);border:1.5px solid var(--bd);border-radius:14px;padding:14px;z-index:500;box-shadow:0 10px 40px rgba(0,0,0,.25);min-width:230px;animation:popIn .15s ease}
-.pop-r{left:auto;right:0}
-@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+        html,
+        body,
+        #root {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Nunito', sans-serif
+        }
 
-/* Modal */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:900;backdrop-filter:blur(5px)}
-.modal{background:var(--bg2);border:1.5px solid var(--bd);border-radius:18px;padding:28px;max-width:540px;width:92%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.3);animation:popIn .2s ease}
+        body {
+            background: var(--bg);
+            color: var(--tx)
+        }
 
-/* Layout */
-.app-wrap{display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;background:var(--hdr);border-bottom:1.5px solid var(--bd);box-shadow:0 2px 10px rgba(0,0,0,.07);flex-shrink:0;flex-wrap:wrap;gap:8px;z-index:50}
-.main{display:flex;flex:1;min-height:0;overflow:hidden}
-.col{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
-.col-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:var(--bg3);border-bottom:1.5px solid var(--bd);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--tx2);flex-shrink:0}
-.ftr{display:flex;align-items:center;justify-content:space-between;padding:6px 18px;background:var(--ftr);font-size:10px;color:rgba(255,255,255,.7);flex-shrink:0;flex-wrap:wrap;gap:6px}
-.ftr a{color:rgba(255,255,255,.7);text-decoration:none}
-.ftr a:hover{color:#fff}
-.scroll{overflow-y:auto;flex:1;min-height:0}
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px
+        }
 
-/* Layout buttons */
-.lybtn{padding:5px 11px;border:1.5px solid var(--bd);border-radius:8px;background:transparent;color:var(--tx2);font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .13s}
-.lybtn:hover,.lybtn.on{background:var(--accl);border-color:var(--acc);color:var(--acc)}
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
 
-/* Botão de ação no header */
-.hbtn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:all .13s}
-</style>
+        ::-webkit-scrollbar-thumb {
+            background: var(--accl);
+            border-radius: 8px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--acc)
+        }
+
+        /* Editor visual */
+        .ec h1 {
+            font-size: 2em;
+            font-weight: bold;
+            margin: .5em 0;
+            line-height: 1.2
+        }
+
+        .ec h2 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: .5em 0;
+            line-height: 1.2
+        }
+
+        .ec h3 {
+            font-size: 1.17em;
+            font-weight: bold;
+            margin: .5em 0;
+            line-height: 1.2
+        }
+
+        .ec h4 {
+            font-size: 1em;
+            font-weight: bold;
+            margin: .5em 0
+        }
+
+        .ec p {
+            margin: .7em 0;
+            line-height: 1.65
+        }
+
+        .ec ul {
+            list-style: disc;
+            padding-left: 32px;
+            margin: .7em 0
+        }
+
+        .ec ol {
+            list-style: decimal;
+            padding-left: 32px;
+            margin: .7em 0
+        }
+
+        .ec li {
+            display: list-item;
+            margin: .2em 0;
+            line-height: 1.5
+        }
+
+        .ec a {
+            color: #4a90d9;
+            text-decoration: underline
+        }
+
+        .ec table {
+            border-collapse: collapse;
+            margin: 1em 0;
+            width: 100%;
+            max-width: 100%
+        }
+
+        .ec td,
+        .ec th {
+            border: 1px solid var(--bd);
+            padding: 6px 10px
+        }
+
+        .ec th {
+            background: var(--bg3);
+            font-weight: 700
+        }
+
+        .ec blockquote {
+            border-left: 4px solid var(--acc);
+            padding: 4px 0 4px 16px;
+            margin: .8em 0;
+            font-style: italic;
+            color: var(--tx2)
+        }
+
+        .ec code {
+            background: rgba(0, 0, 0, .1);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .88em
+        }
+
+        .ec pre {
+            background: #1a1730;
+            color: #b8f0a0;
+            padding: 14px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: .8em 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .88em
+        }
+
+        .ec hr {
+            border: none;
+            border-top: 2px solid var(--bd);
+            margin: 1.2em 0
+        }
+
+        .ec img {
+            max-width: 100%;
+            height: auto
+        }
+
+        .ec .toc ol,
+        .ec .toc ul,
+        .ec .sumario ol,
+        .ec .sumario ul {
+            list-style: none !important;
+            padding-left: 0 !important
+        }
+
+        /* Toolbar buttons - Ajustados para melhor leitura */
+        .tb {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--tx2);
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            transition: background .13s, color .13s;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        .tb:hover {
+            background: var(--accl);
+            color: var(--acc)
+        }
+
+        .tb.on {
+            background: var(--accl);
+            color: var(--acc)
+        }
+
+        .sep {
+            width: 1px;
+            height: 24px;
+            background: var(--bd);
+            margin: 0 4px;
+            flex-shrink: 0
+        }
+
+        select.tbs {
+            padding: 5px 8px;
+            border: 1px solid var(--bd);
+            border-radius: 7px;
+            background: var(--bg);
+            color: var(--tx);
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            height: 32px
+        }
+
+        select.tbs:focus {
+            outline: 2px solid var(--acc)
+        }
+
+        /* Popover */
+        .pop {
+            position: absolute;
+            top: calc(100% + 7px);
+            left: 0;
+            background: var(--bg2);
+            border: 1.5px solid var(--bd);
+            border-radius: 14px;
+            padding: 14px;
+            z-index: 500;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+            min-width: 230px;
+            animation: popIn .15s ease
+        }
+
+        .pop-r {
+            left: auto;
+            right: 0
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(.95)
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        /* Modal */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 900;
+            backdrop-filter: blur(5px)
+        }
+
+        .modal {
+            background: var(--bg2);
+            border: 1.5px solid var(--bd);
+            border-radius: 18px;
+            padding: 28px;
+            max-width: 540px;
+            width: 92%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .3);
+            animation: popIn .2s ease
+        }
+
+        /* Layout */
+        .app-wrap {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            overflow: hidden
+        }
+
+        .hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 18px;
+            background: var(--hdr);
+            border-bottom: 1.5px solid var(--bd);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .07);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 8px;
+            z-index: 50
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden
+        }
+
+        .col-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 14px;
+            background: var(--bg3);
+            border-bottom: 1.5px solid var(--bd);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: var(--tx2);
+            flex-shrink: 0
+        }
+
+        .ftr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 18px;
+            background: var(--ftr);
+            font-size: 10px;
+            color: rgba(255, 255, 255, .7);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 6px
+        }
+
+        .ftr a {
+            color: rgba(255, 255, 255, .7);
+            text-decoration: none
+        }
+
+        .ftr a:hover {
+            color: #fff
+        }
+
+        .scroll {
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0
+        }
+
+        /* Layout buttons */
+        .lybtn {
+            padding: 5px 11px;
+            border: 1.5px solid var(--bd);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--tx2);
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .13s
+        }
+
+        .lybtn:hover,
+        .lybtn.on {
+            background: var(--accl);
+            border-color: var(--acc);
+            color: var(--acc)
+        }
+
+        /* Botão de ação no header */
+        .hbtn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            transition: all .13s
+        }
+    </style>
 </head>
+
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useRef, useEffect } = React;
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
 
-/* SVG icon helper - Redesenhados com padrão visual clean (estilo Feather/Lucide) */
-const IC = {
-  code:["M16 18l6-6-6-6", "M8 6l-6 6 6 6"],
-  undo:["M3 7v6h6", "M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.6L3 13"],
-  redo:["M21 7v6h-6", "M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.6L21 13"],
-  bold:["M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z", "M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"],
-  italic:["M19 4h-9", "M14 20H5", "M15 4L9 20"],
-  under:["M6 3v7a6 6 0 0 0 12 0V3", "M4 21h16"],
-  strike:["M16 8a4 4 0 0 0-8 0c0 2 8 2 8 4a4 4 0 0 1-8 0", "M3 12h18"],
-  pal:["M12 21a9 9 0 1 1 0-18c4.97 0 9 4.03 9 9 0 2.48-2 4.5-4.5 4.5h-2.5a2 2 0 0 0-2 2v.5a2 2 0 0 1-2 2z", "M7.5 10.5h.01", "M10.5 7.5h.01", "M13.5 7.5h.01", "M16.5 10.5h.01"],
-  eraser:["m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21", "M22 21H7", "m5 11 9 9"],
-  al:["M3 6h18", "M3 12h12", "M3 18h18"],
-  ac:["M3 6h18", "M6 12h12", "M3 18h18"],
-  ar:["M3 6h18", "M9 12h12", "M3 18h18"],
-  aj:["M3 6h18", "M3 12h18", "M3 18h18"],
-  ul:["M8 6h13", "M8 12h13", "M8 18h13", "M3 6h.01", "M3 12h.01", "M3 18h.01"],
-  ol:["M10 6h11", "M10 12h11", "M10 18h11", "M4 6h1v4", "M4 10h2", "M4 14h2a1 1 0 110 2H4a1 1 0 001 1v1", "M4 18h2"],
-  qt:["M10 11h-4a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3", "M10 11l-4 8", "M21 11h-4a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3", "M21 11l-4 8"],
-  hr:["M5 12h14"],
-  lnk:["M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"],
-  img:["M21 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", "M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z", "M21 15l-5-5L5 21"],
-  tbl:["M3 3h18v18H3z", "M3 9h18", "M12 3v18"],
-  sav:["M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z", "M17 21v-8H7v8", "M7 3v5h8"],
-  opn:["M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"],
-  mon:["M2 3h20a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z", "M8 21h8", "M12 17v4"],
-  mob:["M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z", "M12 18h.01"],
-  moon:["M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"],
-  sun:["M12 2v2", "M12 20v2", "M4.22 4.22l1.42 1.42", "M18.36 18.36l1.42 1.42", "M2 12h2", "M20 12h2", "M4.22 19.78l1.42-1.42", "M18.36 5.64l1.42-1.42", "M12 7a5 5 0 0 0 0 10 5 5 0 0 0 0-10z"],
-  help:["M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z", "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", "M12 17h.01"],
-  close:["M18 6L6 18", "M6 6l12 12"],
-  ok:["M20 6L9 17l-5-5"],
-  new:["M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z", "M14 2v6h6", "M12 18v-6", "M9 15h6"],
-  copy:["M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z", "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"],
-  music:["M9 18V5l12-2v13", "M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M21 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"],
-  emoji:["M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z", "M8 14s1.5 2 4 2 4-2 4-2", "M9 9h.01", "M15 9h.01"],
-  ly1:["M3 3h18v18H3z", "M9 3v18", "M15 3v18"],
-  ly2:["M3 3h18v18H3z", "M9 3v18"],
-  ly3:["M3 3h18v18H3z", "M15 3v18"],
-  sub:["M5 7l5 10", "M10 7L5 17", "M14 15a2 2 0 1 1 4 0c0 1-2 2-2 3h4"],
-  sup:["M5 7l5 10", "M10 7L5 17", "M14 7a2 2 0 1 1 4 0c0 1-2 2-2 3h4"],
-};
+        /* SVG icon helper - Redesenhados com padrão visual clean (estilo Feather/Lucide) */
+        const IC = {
+            code: ["M16 18l6-6-6-6", "M8 6l-6 6 6 6"],
+            undo: ["M3 7v6h6", "M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.6L3 13"],
+            redo: ["M21 7v6h-6", "M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.6L21 13"],
+            bold: ["M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z", "M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"],
+            italic: ["M19 4h-9", "M14 20H5", "M15 4L9 20"],
+            under: ["M6 3v7a6 6 0 0 0 12 0V3", "M4 21h16"],
+            strike: ["M16 8a4 4 0 0 0-8 0c0 2 8 2 8 4a4 4 0 0 1-8 0", "M3 12h18"],
+            pal: ["M12 21a9 9 0 1 1 0-18c4.97 0 9 4.03 9 9 0 2.48-2 4.5-4.5 4.5h-2.5a2 2 0 0 0-2 2v.5a2 2 0 0 1-2 2z", "M7.5 10.5h.01", "M10.5 7.5h.01", "M13.5 7.5h.01", "M16.5 10.5h.01"],
+            eraser: ["m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21", "M22 21H7", "m5 11 9 9"],
+            al: ["M3 6h18", "M3 12h12", "M3 18h18"],
+            ac: ["M3 6h18", "M6 12h12", "M3 18h18"],
+            ar: ["M3 6h18", "M9 12h12", "M3 18h18"],
+            aj: ["M3 6h18", "M3 12h18", "M3 18h18"],
+            ul: ["M8 6h13", "M8 12h13", "M8 18h13", "M3 6h.01", "M3 12h.01", "M3 18h.01"],
+            ol: ["M10 6h11", "M10 12h11", "M10 18h11", "M4 6h1v4", "M4 10h2", "M4 14h2a1 1 0 110 2H4a1 1 0 001 1v1", "M4 18h2"],
+            qt: ["M10 11h-4a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3", "M10 11l-4 8", "M21 11h-4a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3", "M21 11l-4 8"],
+            hr: ["M5 12h14"],
+            lnk: ["M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"],
+            img: ["M21 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", "M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z", "M21 15l-5-5L5 21"],
+            tbl: ["M3 3h18v18H3z", "M3 9h18", "M12 3v18"],
+            sav: ["M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z", "M17 21v-8H7v8", "M7 3v5h8"],
+            opn: ["M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"],
+            mon: ["M2 3h20a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z", "M8 21h8", "M12 17v4"],
+            mob: ["M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z", "M12 18h.01"],
+            moon: ["M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"],
+            sun: ["M12 2v2", "M12 20v2", "M4.22 4.22l1.42 1.42", "M18.36 18.36l1.42 1.42", "M2 12h2", "M20 12h2", "M4.22 19.78l1.42-1.42", "M18.36 5.64l1.42-1.42", "M12 7a5 5 0 0 0 0 10 5 5 0 0 0 0-10z"],
+            help: ["M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z", "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", "M12 17h.01"],
+            close: ["M18 6L6 18", "M6 6l12 12"],
+            ok: ["M20 6L9 17l-5-5"],
+            new: ["M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z", "M14 2v6h6", "M12 18v-6", "M9 15h6"],
+            copy: ["M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z", "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"],
+            music: ["M9 18V5l12-2v13", "M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M21 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"],
+            emoji: ["M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z", "M8 14s1.5 2 4 2 4-2 4-2", "M9 9h.01", "M15 9h.01"],
+            ly1: ["M3 3h18v18H3z", "M9 3v18", "M15 3v18"],
+            ly2: ["M3 3h18v18H3z", "M9 3v18"],
+            ly3: ["M3 3h18v18H3z", "M15 3v18"],
+            sub: ["M5 7l5 10", "M10 7L5 17", "M14 15a2 2 0 1 1 4 0c0 1-2 2-2 3h4"],
+            sup: ["M5 7l5 10", "M10 7L5 17", "M14 7a2 2 0 1 1 4 0c0 1-2 2-2 3h4"],
+        };
 
-const Ic = ({n,s=15,cls=""}) => {
-  const d = IC[n]; if(!d) return null;
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={s} height={s} viewBox="0 0 24 24"
-      fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      className={cls} style={{flexShrink:0}}>
-      {Array.isArray(d)?d.map((p,i)=><path key={i} d={p}/>):<path d={d}/>}
-    </svg>
-  );
-};
+        const Ic = ({ n, s = 15, cls = "" }) => {
+            const d = IC[n]; if (!d) return null;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" width={s} height={s} viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    className={cls} style={{ flexShrink: 0 }}>
+                    {Array.isArray(d) ? d.map((p, i) => <path key={i} d={p} />) : <path d={d} />}
+                </svg>
+            );
+        };
 
-// Componente B (Botão Toolbar) atualizado para não usar a classe ".tip" falha, e sim o atributo nativo 'title'.
-const B = ({n,lbl,tip,onClick,on,style:st}) => (
-  <button className={`tb${on?' on':''}`} title={tip||lbl||''}
-    onMouseDown={e=>e.preventDefault()} onClick={onClick} style={st}>
-    {n && <Ic n={n} s={16}/>}
-    {lbl && <span style={{fontSize: n ? 13 : 14, fontWeight: n ? 700 : 900}}>{lbl}</span>}
-  </button>
-);
-const Sep = () => <div className="sep"/>;
+        // Componente B (Botão Toolbar) atualizado para não usar a classe ".tip" falha, e sim o atributo nativo 'title'.
+        const B = ({ n, lbl, tip, onClick, on, style: st }) => (
+            <button className={`tb${on ? ' on' : ''}`} title={tip || lbl || ''}
+                onMouseDown={e => e.preventDefault()} onClick={onClick} style={st}>
+                {n && <Ic n={n} s={16} />}
+                {lbl && <span style={{ fontSize: n ? 13 : 14, fontWeight: n ? 700 : 900 }}>{lbl}</span>}
+            </button>
+        );
+        const Sep = () => <div className="sep" />;
 
-/* Paletas */
-const PALETAS = [
-  {t:'GlauWeb', c:['#A7D7C5','#F7F4E9','#F6DFEB','#E4BAD4','#C490D1','#756D79','#2D2830','#FFFFFF']},
-  {t:'Cinzas',  c:['#000','#222','#444','#666','#888','#aaa','#ccc','#fff']},
-  {t:'Cores',   c:['#e53935','#FF7043','#FFB300','#43A047','#1E88E5','#5E35B1','#D81B60','#00ACC1']},
-  {t:'Pastéis', c:['#FFCDD2','#FFCCBC','#FFF9C4','#C8E6C9','#BBDEFB','#E1BEE7','#F8BBD0','#B2EBF2']},
-];
+        /* Paletas */
+        const PALETAS = [
+            { t: 'GlauWeb', c: ['#A7D7C5', '#F7F4E9', '#F6DFEB', '#E4BAD4', '#C490D1', '#756D79', '#2D2830', '#FFFFFF'] },
+            { t: 'Cinzas', c: ['#000', '#222', '#444', '#666', '#888', '#aaa', '#ccc', '#fff'] },
+            { t: 'Cores', c: ['#e53935', '#FF7043', '#FFB300', '#43A047', '#1E88E5', '#5E35B1', '#D81B60', '#00ACC1'] },
+            { t: 'Pastéis', c: ['#FFCDD2', '#FFCCBC', '#FFF9C4', '#C8E6C9', '#BBDEFB', '#E1BEE7', '#F8BBD0', '#B2EBF2'] },
+        ];
 
-/* Símbolos musicais Unicode completos */
-const MUSIC = [
-  '♩','♪','♫','♬','♭','♮','♯','𝄀','𝄁','𝄂','𝄃','𝄄','𝄅','𝄆','𝄇','𝄈','𝄉','𝄊','𝄋','𝄌','𝄍','𝄎','𝄏',
-  '𝄐','𝄑','𝄒','𝄓','𝄔','𝄕','𝄖','𝄗','𝄘','𝄙','𝄚','𝄛','𝄜','𝄝','𝄞','𝄟','𝄠','𝄡','𝄢','𝄣','𝄤','𝄥','𝄦',
-  '𝄩','𝄪','𝄫','𝄬','𝄭','𝄮','𝄯','𝄰','𝄱','𝄲','𝄳','𝄴','𝄵','𝄶','𝄷','𝄸','𝄹','𝄺','𝄻','𝄼','𝄽','𝄾','𝄿',
-  '𝅀','𝅁','𝅂','𝅃','𝅄','𝅅','𝅗','𝅘','𝅗𝅥','𝅘𝅥','𝅘𝅥𝅮','𝅘𝅥𝅯','𝅘𝅥𝅰','𝅘𝅥𝅱','𝅘𝅥𝅲','𝅥','𝅦','𝅧','𝅨','𝅩','𝅪','𝅫','𝅬','𝅭','𝅮','𝅯','𝅰','𝅱','𝅲',
-  '𝅻','𝅼','𝅽','𝅾','𝅿','𝆀','𝆁','𝆂','𝆃','𝆄','𝆅','𝆆','𝆇','𝆈','𝆉','𝆊','𝆋','𝆌','𝆍','𝆎','𝆏','𝆐','𝆑',
-  '𝆒','𝆓','𝆔','𝆕','𝆖','𝆗','𝆘','𝆙','𝆚','𝆛','𝆜','𝆝','𝆞','𝆟','𝆠','𝆡','𝆢','𝆣','𝆤','𝆥','𝆦','𝆧','𝆨',
-  '🎵','🎶','🎼','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🪗','🎤','🎧','📻','🎙','🎚','🎛','🔔','🔕',
-];
+        /* Símbolos musicais Unicode completos */
+        const MUSIC = [
+            '♩', '♪', '♫', '♬', '♭', '♮', '♯', '𝄀', '𝄁', '𝄂', '𝄃', '𝄄', '𝄅', '𝄆', '𝄇', '𝄈', '𝄉', '𝄊', '𝄋', '𝄌', '𝄍', '𝄎', '𝄏',
+            '𝄐', '𝄑', '𝄒', '𝄓', '𝄔', '𝄕', '𝄖', '𝄗', '𝄘', '𝄙', '𝄚', '𝄛', '𝄜', '𝄝', '𝄞', '𝄟', '𝄠', '𝄡', '𝄢', '𝄣', '𝄤', '𝄥', '𝄦',
+            '𝄩', '𝄪', '𝄫', '𝄬', '𝄭', '𝄮', '𝄯', '𝄰', '𝄱', '𝄲', '𝄳', '𝄴', '𝄵', '𝄶', '𝄷', '𝄸', '𝄹', '𝄺', '𝄻', '𝄼', '𝄽', '𝄾', '𝄿',
+            '𝅀', '𝅁', '𝅂', '𝅃', '𝅄', '𝅅', '𝅗', '𝅘', '𝅗𝅥', '𝅘𝅥', '𝅘𝅥𝅮', '𝅘𝅥𝅯', '𝅘𝅥𝅰', '𝅘𝅥𝅱', '𝅘𝅥𝅲', '𝅥', '𝅦', '𝅧', '𝅨', '𝅩', '𝅪', '𝅫', '𝅬', '𝅭', '𝅮', '𝅯', '𝅰', '𝅱', '𝅲',
+            '𝅻', '𝅼', '𝅽', '𝅾', '𝅿', '𝆀', '𝆁', '𝆂', '𝆃', '𝆄', '𝆅', '𝆆', '𝆇', '𝆈', '𝆉', '𝆊', '𝆋', '𝆌', '𝆍', '𝆎', '𝆏', '𝆐', '𝆑',
+            '𝆒', '𝆓', '𝆔', '𝆕', '𝆖', '𝆗', '𝆘', '𝆙', '𝆚', '𝆛', '𝆜', '𝆝', '𝆞', '𝆟', '𝆠', '𝆡', '𝆢', '𝆣', '𝆤', '𝆥', '𝆦', '𝆧', '𝆨',
+            '🎵', '🎶', '🎼', '🎹', '🥁', '🪘', '🎷', '🎺', '🎸', '🪕', '🎻', '🪗', '🎤', '🎧', '📻', '🎙', '🎚', '🎛', '🔔', '🔕',
+        ];
 
-const EMOJIS = [
-  '😀','😁','😂','🥰','😍','😎','🤩','😢','😡','🤔',
-  '👍','👎','🙌','👏','🤝','❤️','💛','💜','💙','💚',
-  '🔥','✨','⭐','🌟','💡','✅','❌','⚠️','🎉','🎊',
-  '🏆','📚','💻','📱','🌈','🌸','🍀','🦋','🐾','🎨',
-];
+        const EMOJIS = [
+            '😀', '😁', '😂', '🥰', '😍', '😎', '🤩', '😢', '😡', '🤔',
+            '👍', '👎', '🙌', '👏', '🤝', '❤️', '💛', '💜', '💙', '💚',
+            '🔥', '✨', '⭐', '🌟', '💡', '✅', '❌', '⚠️', '🎉', '🎊',
+            '🏆', '📚', '💻', '📱', '🌈', '🌸', '🍀', '🦋', '🐾', '🎨',
+        ];
 
-function ColorPop({ onColor, right }) {
-  const [hex, setHex] = useState('');
-  return (
-    <div className={`pop${right?' pop-r':''}`} style={{minWidth:240}} onMouseDown={e=>e.stopPropagation()}>
-      {PALETAS.map((p,i)=>(
-        <div key={i} style={{marginBottom:9}}>
-          <div style={{fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.08em',color:'var(--tx2)',marginBottom:4}}>{p.t}</div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3}}>
-            {p.c.map(c=>(
-              <button key={c} onClick={()=>onColor(c)} title={c}
-                style={{width:'100%',aspectRatio:'1',borderRadius:4,background:c,border:'1px solid rgba(0,0,0,.15)',cursor:'pointer'}}/>
-            ))}
-          </div>
-        </div>
-      ))}
-      <div style={{display:'flex',gap:6,paddingTop:8,borderTop:'1px solid var(--bd)'}}>
-        <input value={hex} onChange={e=>setHex(e.target.value)} placeholder="#HEX ou rgb()"
-          style={{flex:1,fontSize:11,padding:'5px 8px',borderRadius:7,border:'1px solid var(--bd)',background:'var(--bg)',color:'var(--tx)',fontFamily:'Nunito,sans-serif'}}/>
-        <button onClick={()=>hex&&onColor(hex)}
-          style={{background:'var(--acc)',color:'#fff',border:'none',borderRadius:7,padding:'5px 12px',fontSize:11,fontWeight:800,cursor:'pointer'}}>OK</button>
-      </div>
-    </div>
-  );
-}
+        function ColorPop({ onColor, right }) {
+            const [hex, setHex] = useState('');
+            return (
+                <div className={`pop${right ? ' pop-r' : ''}`} style={{ minWidth: 240 }} onMouseDown={e => e.stopPropagation()}>
+                    {PALETAS.map((p, i) => (
+                        <div key={i} style={{ marginBottom: 9 }}>
+                            <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--tx2)', marginBottom: 4 }}>{p.t}</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 3 }}>
+                                {p.c.map(c => (
+                                    <button key={c} onClick={() => onColor(c)} title={c}
+                                        style={{ width: '100%', aspectRatio: '1', borderRadius: 4, background: c, border: '1px solid rgba(0,0,0,.15)', cursor: 'pointer' }} />
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                    <div style={{ display: 'flex', gap: 6, paddingTop: 8, borderTop: '1px solid var(--bd)' }}>
+                        <input value={hex} onChange={e => setHex(e.target.value)} placeholder="#HEX ou rgb()"
+                            style={{ flex: 1, fontSize: 11, padding: '5px 8px', borderRadius: 7, border: '1px solid var(--bd)', background: 'var(--bg)', color: 'var(--tx)', fontFamily: 'Nunito,sans-serif' }} />
+                        <button onClick={() => hex && onColor(hex)}
+                            style={{ background: 'var(--acc)', color: '#fff', border: 'none', borderRadius: 7, padding: '5px 12px', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}>OK</button>
+                    </div>
+                </div>
+            );
+        }
 
-function HelpModal({ onClose }) {
-  const steps = [
-    ["1","Peça a uma IA (ChatGPT, Claude, Gemini…) para gerar um texto em <strong>HTML formatado</strong>."],
-    ["2","<strong>Copie</strong> todo o código HTML gerado pela IA."],
-    ["3","<strong>Cole</strong> na coluna esquerda <em>Código HTML</em> — o resultado aparece ao vivo."],
-    ["4","Use a coluna do meio <em>Editor Visual</em> para editar o texto sem mexer no código."],
-    ["5","Veja como ficará na <em>Pré-visualização</em> à direita, em modo PC ou Celular."],
-    ["6","Dê um nome ao arquivo e clique em <strong>💾 Salvar</strong> para baixar o .html."],
-  ];
-  return (
-    <div className="modal-bg" onClick={onClose}>
-      <div className="modal" onClick={e=>e.stopPropagation()}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
-          <h2 style={{fontSize:20,fontWeight:900,color:'var(--acc)'}}>📖 Como usar o GlauWeb Editor</h2>
-          <button className="tb" title="Fechar" onClick={onClose}><Ic n="close" s={18}/></button>
-        </div>
-        <p style={{fontSize:13,lineHeight:1.7,color:'var(--tx2)',marginBottom:18}}>
-          Editor feito para quem <strong style={{color:'var(--tx)'}}>não sabe HTML</strong>. Gere o código com IA, cole aqui, edite e salve!
-        </p>
-        {steps.map(([n,t])=>(
-          <div key={n} style={{display:'flex',gap:12,marginBottom:14,alignItems:'flex-start'}}>
-            <div style={{width:26,height:26,background:'var(--acc)',color:'#fff',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:900,flexShrink:0}}>{n}</div>
-            <p style={{fontSize:13,lineHeight:1.7,color:'var(--tx2)'}} dangerouslySetInnerHTML={{__html:t}}/>
-          </div>
-        ))}
-        <div style={{background:'var(--bg3)',borderRadius:10,padding:'12px 16px',marginTop:6,fontSize:13,lineHeight:1.7}}>
-          <strong>💡 Dica:</strong> Use os botões da barra de ferramentas para negrito, cores, listas e mais — igual ao Word!
-        </div>
-        <div style={{marginTop:10,padding:'12px 16px',background:'rgba(196,144,209,.1)',borderRadius:10,border:'1px solid var(--accl)',fontSize:13,lineHeight:1.7}}>
-          <strong style={{color:'var(--acc)'}}>📂 Abrir arquivo:</strong> Clique em <em>Abrir</em> para carregar um <code>.html</code> ou <code>.txt</code>.
-        </div>
-        <div style={{marginTop:10,padding:'12px 16px',background:'rgba(167,215,197,.1)',borderRadius:10,border:'1px solid var(--grn)',fontSize:13,lineHeight:1.7}}>
-          <strong style={{color:'var(--grn)'}}>📐 Layouts:</strong> Use os botões <em>Igual / Editor+ / Pré-vis+</em> para mudar a proporção das colunas.
-        </div>
-        <button onClick={onClose} style={{marginTop:20,width:'100%',padding:12,borderRadius:10,background:'var(--acc)',color:'#fff',fontWeight:900,border:'none',cursor:'pointer',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-          <Ic n="ok" s={15}/> Entendi, vamos começar!
-        </button>
-      </div>
-    </div>
-  );
-}
+        function HelpModal({ onClose }) {
+            const steps = [
+                ["1", "Peça a uma IA (ChatGPT, Claude, Gemini…) para gerar um texto em <strong>HTML formatado</strong>."],
+                ["2", "<strong>Copie</strong> todo o código HTML gerado pela IA."],
+                ["3", "<strong>Cole</strong> na coluna esquerda <em>Código HTML</em> — o resultado aparece ao vivo."],
+                ["4", "Use a coluna do meio <em>Editor Visual</em> para editar o texto sem mexer no código."],
+                ["5", "Veja como ficará na <em>Pré-visualização</em> à direita, em modo PC ou Celular."],
+                ["6", "Dê um nome ao arquivo e clique em <strong>💾 Salvar</strong> para baixar o .html."],
+            ];
+            return (
+                <div className="modal-bg" onClick={onClose}>
+                    <div className="modal" onClick={e => e.stopPropagation()}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+                            <h2 style={{ fontSize: 20, fontWeight: 900, color: 'var(--acc)' }}>📖 Como usar o GlauWeb Editor</h2>
+                            <button className="tb" title="Fechar" onClick={onClose}><Ic n="close" s={18} /></button>
+                        </div>
+                        <p style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--tx2)', marginBottom: 18 }}>
+                            Editor feito para quem <strong style={{ color: 'var(--tx)' }}>não sabe HTML</strong>. Gere o código com IA, cole aqui, edite e salve!
+                        </p>
+                        {steps.map(([n, t]) => (
+                            <div key={n} style={{ display: 'flex', gap: 12, marginBottom: 14, alignItems: 'flex-start' }}>
+                                <div style={{ width: 26, height: 26, background: 'var(--acc)', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, flexShrink: 0 }}>{n}</div>
+                                <p style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--tx2)' }} dangerouslySetInnerHTML={{ __html: t }} />
+                            </div>
+                        ))}
+                        <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: '12px 16px', marginTop: 6, fontSize: 13, lineHeight: 1.7 }}>
+                            <strong>💡 Dica:</strong> Use os botões da barra de ferramentas para negrito, cores, listas e mais — igual ao Word!
+                        </div>
+                        <div style={{ marginTop: 10, padding: '12px 16px', background: 'rgba(196,144,209,.1)', borderRadius: 10, border: '1px solid var(--accl)', fontSize: 13, lineHeight: 1.7 }}>
+                            <strong style={{ color: 'var(--acc)' }}>📂 Abrir arquivo:</strong> Clique em <em>Abrir</em> para carregar um <code>.html</code> ou <code>.txt</code>.
+                        </div>
+                        <div style={{ marginTop: 10, padding: '12px 16px', background: 'rgba(167,215,197,.1)', borderRadius: 10, border: '1px solid var(--grn)', fontSize: 13, lineHeight: 1.7 }}>
+                            <strong style={{ color: 'var(--grn)' }}>📐 Layouts:</strong> Use os botões <em>Igual / Editor+ / Pré-vis+</em> para mudar a proporção das colunas.
+                        </div>
+                        <button onClick={onClose} style={{ marginTop: 20, width: '100%', padding: 12, borderRadius: 10, background: 'var(--acc)', color: '#fff', fontWeight: 900, border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                            <Ic n="ok" s={15} /> Entendi, vamos começar!
+                        </button>
+                    </div>
+                </div>
+            );
+        }
 
-const DEFAULT_HTML = `<div style="text-align:center;padding:30px 20px;font-family:'Nunito',sans-serif">
+        const DEFAULT_HTML = `<div style="text-align:center;padding:30px 20px;font-family:'Nunito',sans-serif">
   <h1 style="color:#C490D1;font-size:2.2em;margin-bottom:10px">Bem-vindo ao GlauWeb Html Editor 🎨</h1>
   <p style="color:#756D79;font-size:1.1em;max-width:540px;margin:0 auto 20px;line-height:1.7">
     Cole aqui o código HTML gerado por uma IA, edite visualmente e salve como quiser.
@@ -272,92 +624,205 @@ const DEFAULT_HTML = `<div style="text-align:center;padding:30px 20px;font-famil
   </blockquote>
 </div>`;
 
-const LAYOUTS = [
-  {id:'eq', lbl:'Igual',    tip:'Colunas iguais',           ico:'ly1', f:[1,1,1]},
-  {id:'ed', lbl:'Editor+',  tip:'Editor mais largo',        ico:'ly2', f:[1,2,1]},
-  {id:'pv', lbl:'Pré-vis+', tip:'Pré-visualização mais larga', ico:'ly3', f:[1,1,2]},
-];
+        const LAYOUTS = [
+            { id: 'eq', lbl: 'Igual', tip: 'Colunas iguais', ico: 'ly1', f: [1, 1, 1] },
+            { id: 'ed', lbl: 'Editor+', tip: 'Editor mais largo', ico: 'ly2', f: [1, 2, 1] },
+            { id: 'pv', lbl: 'Pré-vis+', tip: 'Pré-visualização mais larga', ico: 'ly3', f: [1, 1, 2] },
+        ];
 
-function App() {
-  const [html, setHtml]       = useState(DEFAULT_HTML);
-  const [dark, setDark]       = useState(false);
-  const [device, setDevice]   = useState('mobile');
-  const [fileName, setFileName] = useState('index');
-  const [layout, setLayout]   = useState('eq');
-  const [savedRange, setSavedRange] = useState(null);
-  const [showHelp, setShowHelp] = useState(false);
-  const [pop, setPop]         = useState(''); // 'txc'|'bgc'|'em'|'mu'|''
-  const [copied, setCopied]   = useState(false);
+        function App() {
+            const [html, setHtml] = useState(DEFAULT_HTML);
+            const [dark, setDark] = useState(false);
+            const [device, setDevice] = useState('mobile');
+            const [fileName, setFileName] = useState('index');
+            const [layout, setLayout] = useState('eq');
+            const [savedRange, setSavedRange] = useState(null);
+            const [showHelp, setShowHelp] = useState(false);
+            const [pop, setPop] = useState(''); // 'txc'|'bgc'|'em'|'mu'|''
+            const [copied, setCopied] = useState(false);
 
-  const visRef    = useRef(null);
-  const iframeRef = useRef(null);
-  const fileRef   = useRef(null);
-  const updating  = useRef(false);
+            const visRef = useRef(null);
+            const iframeRef = useRef(null);
+            const fileRef = useRef(null);
+            const updating = useRef(false);
 
-  const curL = LAYOUTS.find(l=>l.id===layout) || LAYOUTS[0];
+            const curL = LAYOUTS.find(l => l.id === layout) || LAYOUTS[0];
 
-  // Tema
-  useEffect(()=>{
-    document.body.classList.toggle('dk', dark);
-  },[dark]);
+            // Tema
+            useEffect(() => {
+                document.body.classList.toggle('dk', dark);
+            }, [dark]);
 
-  // Preview
-  useEffect(()=>{
-    const iframe = iframeRef.current; if(!iframe) return;
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    const dk = dark?`body{background:#1a1730!important}*{color:#eae4f5!important}a{color:#c490d1!important}th{background:#27223a!important}td,th{border-color:#3a3350!important}`:'';
-    doc.open();
-    doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+            // Preview
+            useEffect(() => {
+                const iframe = iframeRef.current; if (!iframe) return;
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                const dk = dark ? `body{background:#1a1730!important}*{color:#eae4f5!important}a{color:#c490d1!important}th{background:#27223a!important}td,th{border-color:#3a3350!important}` : '';
+                doc.open();
+                doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:'Nunito',sans-serif;word-wrap:break-word;padding:1rem;background:${dark?'#1a1730':'#fff'}}
+body{margin:0;font-family:'Nunito',sans-serif;word-wrap:break-word;padding:1rem;background:${dark ? '#1a1730' : '#fff'}}
 .toc ol,.toc ul,.sumario ol,.sumario ul{list-style:none!important;padding-left:0!important}
 a{color:#4a90d9}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px 10px}
 blockquote{border-left:4px solid #C490D1;padding-left:16px;color:#888;font-style:italic;margin:1em 0}
 img{max-width:100%;height:auto}${dk}
 </style></head><body>${html}</body></html>`);
-    doc.close();
-  },[html,dark]);
+                doc.close();
+            }, [html, dark]);
 
-  // Sincronizar editor visual
-  useEffect(()=>{
-    if(!visRef.current || updating.current) return;
-    if(visRef.current.innerHTML !== html) visRef.current.innerHTML = html;
-  },[html]);
+            // Sincronizar editor visual (isolado em um iframe para segurança de estilos/layout)
+            useEffect(() => {
+                const iframe = visRef.current;
+                if (!iframe) return;
+                const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (!doc) return;
 
-  const onInput = () => {
-    if(!visRef.current) return;
-    updating.current = true;
-    setHtml(visRef.current.innerHTML);
-    setTimeout(()=>{ updating.current = false; },10);
-  };
+                if (!doc.body || doc.body.getAttribute('data-init') !== 'true') {
+                    doc.open();
+                    doc.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+:root {
+    --bg: #F7F4E9; --bg2: #FFFFFF; --bg3: #F6DFEB; --bd: #E4BAD4;
+    --tx: #2D2830; --tx2: #756D79; --acc: #C490D1; --accl: #E4BAD4;
+    --grn: #A7D7C5; --codebg: #1a1730; --codetx: #b8f0a0;
+}
+body.dk {
+    --bg: #151222; --bg2: #1e1a2e; --bg3: #27223a; --bd: #3a3350;
+    --tx: #eae4f5; --tx2: #9b8fad; --acc: #c490d1; --accl: #4d3d62;
+    --grn: #5daa97; --codebg: #0e0c1a; --codetx: #b8f0a0;
+}
+body {
+    padding: 22px 28px; outline: none; color: var(--tx); background: transparent; 
+    line-height: 1.7; font-size: 14px; font-family: 'Nunito', sans-serif; 
+    word-wrap: break-word; margin: 0; min-height: 100vh;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accl); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--acc); }
+h1 { font-size: 2em; font-weight: bold; margin: .5em 0; line-height: 1.2 }
+h2 { font-size: 1.5em; font-weight: bold; margin: .5em 0; line-height: 1.2 }
+h3 { font-size: 1.17em; font-weight: bold; margin: .5em 0; line-height: 1.2 }
+h4 { font-size: 1em; font-weight: bold; margin: .5em 0 }
+p { margin: .7em 0; line-height: 1.65 }
+ul { list-style: disc; padding-left: 32px; margin: .7em 0 }
+ol { list-style: decimal; padding-left: 32px; margin: .7em 0 }
+li { display: list-item; margin: .2em 0; line-height: 1.5 }
+a { color: #4a90d9; text-decoration: underline }
+table { border-collapse: collapse; margin: 1em 0; width: 100%; max-width: 100% }
+td, th { border: 1px solid var(--bd); padding: 6px 10px }
+th { background: var(--bg3); font-weight: 700 }
+blockquote { border-left: 4px solid var(--acc); padding: 4px 0 4px 16px; margin: .8em 0; font-style: italic; color: var(--tx2) }
+code { background: rgba(0, 0, 0, .1); padding: 1px 5px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: .88em }
+pre { background: #1a1730; color: #b8f0a0; padding: 14px; border-radius: 8px; overflow-x: auto; margin: .8em 0; font-family: 'JetBrains Mono', monospace; font-size: .88em }
+hr { border: none; border-top: 2px solid var(--bd); margin: 1.2em 0 }
+img { max-width: 100%; height: auto }
+.toc ol, .toc ul, .sumario ol, .sumario ul { list-style: none !important; padding-left: 0 !important }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body contenteditable="true" data-init="true" class="${dark ? 'dk' : ''}"></body>
+</html>
+                    `);
+                    doc.close();
 
-  const saveR = () => {
-    const s = window.getSelection();
-    if(s.rangeCount>0 && visRef.current?.contains(s.anchorNode))
-      setSavedRange(s.getRangeAt(0).cloneRange());
-  };
-  const restoreR = () => {
-    if(savedRange){ const s=window.getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
-    visRef.current?.focus();
-  };
+                    doc.body.innerHTML = html;
 
-  const exec = (cmd,val=null) => { restoreR(); document.execCommand(cmd,false,val); onInput(); saveR(); };
-  const closePop = () => setPop('');
-  const togglePop = name => { saveR(); setPop(p=>p===name?'':name); };
+                    doc.body.addEventListener('input', () => {
+                        updating.current = true;
+                        setHtml(doc.body.innerHTML);
+                        setTimeout(() => { updating.current = false; }, 10);
+                    });
+                    const sr = () => {
+                        const win = iframe.contentWindow;
+                        if (!win) return;
+                        const s = win.getSelection();
+                        if (s.rangeCount > 0) setSavedRange(s.getRangeAt(0).cloneRange());
+                    };
+                    doc.body.addEventListener('mouseup', sr);
+                    doc.body.addEventListener('keyup', sr);
+                } else {
+                    if (dark && !doc.body.classList.contains('dk')) doc.body.classList.add('dk');
+                    if (!dark && doc.body.classList.contains('dk')) doc.body.classList.remove('dk');
+                    if (!updating.current && doc.body.innerHTML !== html) {
+                        doc.body.innerHTML = html;
+                    }
+                }
+            }, [html, dark]);
 
-  const handleTxColor = c => { document.execCommand('styleWithCSS',false,true); exec('foreColor',c); closePop(); };
-  const handleBgColor = c => { document.execCommand('styleWithCSS',false,true); exec('hiliteColor',c); closePop(); };
-  const insertChar    = c => { restoreR(); document.execCommand('insertText',false,c); onInput(); closePop(); };
+            const onInput = () => { /* manipulado via event listener interior do iframe */ };
 
-  const insertLink  = () => { const u=prompt('URL do link:','https://'); if(u) exec('createLink',u); };
-  const insertImg   = () => { const u=prompt('URL da imagem:','https://'); if(u) exec('insertHTML',`<img src="${u}" style="max-width:100%;height:auto" alt=""/>`); };
-  const insertTable = () => exec('insertHTML','<table><thead><tr><th>Coluna 1</th><th>Coluna 2</th><th>Coluna 3</th></tr></thead><tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table>');
-  const insertHR    = () => exec('insertHTML','<hr/>');
-  const insertBQ    = () => { restoreR(); document.execCommand('formatBlock',false,'blockquote'); onInput(); };
+            const saveR = () => {
+                const win = visRef.current?.contentWindow;
+                if (!win) return;
+                const s = win.getSelection();
+                if (s.rangeCount > 0) setSavedRange(s.getRangeAt(0).cloneRange());
+            };
 
-  const handleSave = () => {
-    const fullHtml = `<!DOCTYPE html>
+            const restoreR = () => {
+                const win = visRef.current?.contentWindow;
+                if (!win) return;
+                if (savedRange) { const s = win.getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+                win.focus();
+            };
+
+            const exec = (cmd, val = null) => { 
+                restoreR(); 
+                const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
+                if(doc) {
+                    doc.execCommand(cmd, false, val); 
+                    updating.current = true;
+                    setHtml(doc.body.innerHTML);
+                    setTimeout(() => { updating.current = false; }, 10);
+                    saveR(); 
+                }
+            };
+            const closePop = () => setPop('');
+            const togglePop = name => { saveR(); setPop(p => p === name ? '' : name); };
+
+            const handleTxColor = c => { 
+                const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
+                if(doc) doc.execCommand('styleWithCSS', false, true); 
+                exec('foreColor', c); closePop(); 
+            };
+            const handleBgColor = c => { 
+                const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
+                if(doc) doc.execCommand('styleWithCSS', false, true); 
+                exec('hiliteColor', c); closePop(); 
+            };
+            const insertChar = c => { 
+                restoreR(); 
+                const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
+                if(doc) doc.execCommand('insertText', false, c); 
+                if(doc) {
+                    updating.current = true;
+                    setHtml(doc.body.innerHTML);
+                    setTimeout(() => { updating.current = false; }, 10);
+                }
+                closePop(); 
+            };
+
+            const insertLink = () => { const u = prompt('URL do link:', 'https://'); if (u) exec('createLink', u); };
+            const insertImg = () => { const u = prompt('URL da imagem:', 'https://'); if (u) exec('insertHTML', `<img src="${u}" style="max-width:100%;height:auto" alt=""/>`); };
+            const insertTable = () => exec('insertHTML', '<table><thead><tr><th>Coluna 1</th><th>Coluna 2</th><th>Coluna 3</th></tr></thead><tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table>');
+            const insertHR = () => exec('insertHTML', '<hr/>');
+            const insertBQ = () => { 
+                restoreR(); 
+                const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
+                if(doc) doc.execCommand('formatBlock', false, 'blockquote'); 
+                if(doc) {
+                    updating.current = true;
+                    setHtml(doc.body.innerHTML);
+                    setTimeout(() => { updating.current = false; }, 10);
+                }
+            };
+
+            const handleSave = () => {
+                const fullHtml = `<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
@@ -368,304 +833,310 @@ img{max-width:100%;height:auto}${dk}
 ${html}
 </body>
 </html>`;
-    const b=new Blob([fullHtml],{type:'text/html;charset=utf-8'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(b); a.download=`${fileName||'index'}.html`; a.click();
-  };
-  const handleNew = () => {
-    if(confirm('Criar novo documento? O conteúdo atual será perdido.')) {
-      setHtml('<h1>Novo Documento</h1><p>Comece a digitar aqui...</p>'); setFileName('index');
-    }
-  };
-  const handleOpen = e => {
-    const f=e.target.files[0]; if(!f) return;
-    const r=new FileReader();
-    r.onload=ev=>{
-      const raw=ev.target.result;
-      if(f.name.match(/\.txt$/i)){
-        const esc=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-        setHtml(`<pre style="white-space:pre-wrap;font-family:sans-serif">${esc}</pre>`);
-      } else {
-        const bm=raw.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-        setHtml(bm?bm[1].trim():raw.trim());
-      }
-      const dot=f.name.lastIndexOf('.');
-      setFileName(dot>0?f.name.substring(0,dot):f.name);
-    };
-    r.readAsText(f,'UTF-8');
-    e.target.value='';
-  };
-  const handleCopy = () => {
-    navigator.clipboard.writeText(html).then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); });
-  };
-  const formatCode = () => {
-    setHtml(p=>p.replace(/>\s*</g,'>\n<').split('\n').map(l=>l.trim()).filter(Boolean).join('\n'));
-  };
+                const b = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(b); a.download = `${fileName || 'index'}.html`; a.click();
+            };
+            const handleNew = () => {
+                if (confirm('Criar novo documento? O conteúdo atual será perdido.')) {
+                    setHtml('<h1>Novo Documento</h1><p>Comece a digitar aqui...</p>'); setFileName('index');
+                }
+            };
+            const handleOpen = e => {
+                const f = e.target.files[0]; if (!f) return;
+                const r = new FileReader();
+                r.onload = ev => {
+                    const raw = ev.target.result;
+                    if (f.name.match(/\.txt$/i)) {
+                        const esc = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+                        setHtml(`<pre style="white-space:pre-wrap;font-family:sans-serif">${esc}</pre>`);
+                    } else {
+                        const bm = raw.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                        setHtml(bm ? bm[1].trim() : raw.trim());
+                    }
+                    const dot = f.name.lastIndexOf('.');
+                    setFileName(dot > 0 ? f.name.substring(0, dot) : f.name);
+                };
+                r.readAsText(f, 'UTF-8');
+                e.target.value = '';
+            };
+            const handleCopy = () => {
+                navigator.clipboard.writeText(html).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+            };
+            const formatCode = () => {
+                setHtml(p => p.replace(/>\s*</g, '>\n<').split('\n').map(l => l.trim()).filter(Boolean).join('\n'));
+            };
 
-  return (
-    <div className="app-wrap" onClick={()=>{ if(pop) closePop(); }}>
+            return (
+                <div className="app-wrap" onClick={() => { if (pop) closePop(); }}>
 
-      {/* HEADER */}
-      <header className="hdr">
-        {/* Logo */}
-        <div style={{display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
-          <div style={{background:'var(--acc)',padding:'7px 9px',borderRadius:11,color:'#fff',display:'flex',alignItems:'center'}}>
-            <Ic n="code" s={22}/>
-          </div>
-          <div>
-            <div style={{fontSize:19,fontWeight:900,letterSpacing:'-.02em',lineHeight:1.1}}>
-              GlauWeb <span style={{color:'var(--acc)'}}>Html Editor</span>
-            </div>
-            <div style={{fontSize:10,color:'var(--tx2)',fontWeight:700}}>Cole, edite e salve seu HTML</div>
-          </div>
-        </div>
+                    {/* HEADER */}
+                    <header className="hdr">
+                        {/* Logo */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                            <div style={{ background: 'var(--acc)', padding: '7px 9px', borderRadius: 11, color: '#fff', display: 'flex', alignItems: 'center' }}>
+                                <Ic n="code" s={22} />
+                            </div>
+                            <div>
+                                <div style={{ fontSize: 19, fontWeight: 900, letterSpacing: '-.02em', lineHeight: 1.1 }}>
+                                    GlauWeb <span style={{ color: 'var(--acc)' }}>Html Editor</span>
+                                </div>
+                                <div style={{ fontSize: 10, color: 'var(--tx2)', fontWeight: 700 }}>Cole, edite e salve seu HTML</div>
+                            </div>
+                        </div>
 
-        {/* Layouts */}
-        <div style={{display:'flex',alignItems:'center',gap:5,flexShrink:0}}>
-          <span style={{fontSize:11,fontWeight:800,color:'var(--tx2)',marginRight:2}}>Layout:</span>
-          {LAYOUTS.map(l=>(
-            <button key={l.id} className={`lybtn${layout===l.id?' on':''}`} title={l.tip} onClick={()=>setLayout(l.id)}>
-              <Ic n={l.ico} s={14}/> {l.lbl}
-            </button>
-          ))}
-        </div>
+                        {/* Layouts */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--tx2)', marginRight: 2 }}>Layout:</span>
+                            {LAYOUTS.map(l => (
+                                <button key={l.id} className={`lybtn${layout === l.id ? ' on' : ''}`} title={l.tip} onClick={() => setLayout(l.id)}>
+                                    <Ic n={l.ico} s={14} /> {l.lbl}
+                                </button>
+                            ))}
+                        </div>
 
-        {/* Ações */}
-        <div style={{display:'flex',alignItems:'center',gap:7,flexWrap:'wrap'}}>
-          <input ref={fileRef} type="file" accept=".html,.htm,.txt" onChange={handleOpen} style={{display:'none'}}/>
+                        {/* Ações */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                            <input ref={fileRef} type="file" accept=".html,.htm,.txt" onChange={handleOpen} style={{ display: 'none' }} />
 
-          <button className="hbtn" title="Abrir arquivo HTML ou TXT" onClick={()=>fileRef.current?.click()}
-            style={{border:'1.5px solid var(--bd)',background:'var(--bg3)',color:'var(--tx2)'}}>
-            <Ic n="opn" s={16}/> Abrir
-          </button>
+                            <button className="hbtn" title="Abrir arquivo HTML ou TXT" onClick={() => fileRef.current?.click()}
+                                style={{ border: '1.5px solid var(--bd)', background: 'var(--bg3)', color: 'var(--tx2)' }}>
+                                <Ic n="opn" s={16} /> Abrir
+                            </button>
 
-          <button className="hbtn" title="Criar novo arquivo" onClick={handleNew}
-            style={{border:'1.5px solid var(--bd)',background:'var(--bg3)',color:'var(--tx2)'}}>
-            <Ic n="new" s={16}/> Novo
-          </button>
+                            <button className="hbtn" title="Criar novo arquivo" onClick={handleNew}
+                                style={{ border: '1.5px solid var(--bd)', background: 'var(--bg3)', color: 'var(--tx2)' }}>
+                                <Ic n="new" s={16} /> Novo
+                            </button>
 
-          <div style={{display:'flex',alignItems:'center',border:'1.5px solid var(--bd)',borderRadius:9,overflow:'hidden',background:'var(--bg)'}}>
-            <input value={fileName} onChange={e=>setFileName(e.target.value)} placeholder="nome-do-arquivo"
-              style={{padding:'7px 11px',fontSize:13,border:'none',background:'transparent',width:130,color:'var(--tx)',fontWeight:700,fontFamily:'Nunito,sans-serif'}}/>
-            <span style={{padding:'7px 9px',background:'var(--bg3)',fontSize:12,fontWeight:900,color:'var(--acc)',borderLeft:'1.5px solid var(--bd)'}}>
-              .html
-            </span>
-          </div>
+                            <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid var(--bd)', borderRadius: 9, overflow: 'hidden', background: 'var(--bg)' }}>
+                                <input value={fileName} onChange={e => setFileName(e.target.value)} placeholder="nome-do-arquivo"
+                                    style={{ padding: '7px 11px', fontSize: 13, border: 'none', background: 'transparent', width: 130, color: 'var(--tx)', fontWeight: 700, fontFamily: 'Nunito,sans-serif' }} />
+                                <span style={{ padding: '7px 9px', background: 'var(--bg3)', fontSize: 12, fontWeight: 900, color: 'var(--acc)', borderLeft: '1.5px solid var(--bd)' }}>
+                                    .html
+                                </span>
+                            </div>
 
-          <button className="hbtn" title="Salvar arquivo no computador" onClick={handleSave}
-            style={{background:'var(--grn)',border:'none',color:'var(--tx)',boxShadow:'0 2px 10px rgba(100,190,160,.3)'}}>
-            <Ic n="sav" s={17}/> Salvar
-          </button>
+                            <button className="hbtn" title="Salvar arquivo no computador" onClick={handleSave}
+                                style={{ background: 'var(--grn)', border: 'none', color: 'var(--tx)', boxShadow: '0 2px 10px rgba(100,190,160,.3)' }}>
+                                <Ic n="sav" s={17} /> Salvar
+                            </button>
 
-          <button className="tb" title={dark?'Mudar para Tema Claro':'Mudar para Tema Escuro'} onClick={()=>setDark(!dark)}
-            style={{padding:'8px',border:'1.5px solid var(--bd)',background:'var(--bg3)',color:'var(--acc)'}}>
-            <Ic n={dark?'sun':'moon'} s={17}/>
-          </button>
+                            <button className="tb" title={dark ? 'Mudar para Tema Claro' : 'Mudar para Tema Escuro'} onClick={() => setDark(!dark)}
+                                style={{ padding: '8px', border: '1.5px solid var(--bd)', background: 'var(--bg3)', color: 'var(--acc)' }}>
+                                <Ic n={dark ? 'sun' : 'moon'} s={17} />
+                            </button>
 
-          <button className="hbtn" title="Ver dicas de como usar" onClick={()=>setShowHelp(true)}
-            style={{border:'1.5px solid var(--accl)',background:'rgba(196,144,209,.1)',color:'var(--acc)'}}>
-            <Ic n="help" s={16}/> Ajuda
-          </button>
-        </div>
-      </header>
+                            <button className="hbtn" title="Ver dicas de como usar" onClick={() => setShowHelp(true)}
+                                style={{ border: '1.5px solid var(--accl)', background: 'rgba(196,144,209,.1)', color: 'var(--acc)' }}>
+                                <Ic n="help" s={16} /> Ajuda
+                            </button>
+                        </div>
+                    </header>
 
-      {/* MAIN — 3 colunas */}
-      <div className="main">
+                    {/* MAIN — 3 colunas */}
+                    <div className="main">
 
-        {/* COL 1: Código */}
-        <div className="col" style={{flex:curL.f[0],borderRight:'1.5px solid var(--bd)'}}>
-          <div className="col-hdr">
-            <span style={{display:'flex',alignItems:'center',gap:7}}><Ic n="code" s={14}/> Código HTML</span>
-            <div style={{display:'flex',gap:4}}>
-              <button className="tb" title="Copiar código HTML" onMouseDown={e=>e.preventDefault()} onClick={handleCopy}
-                style={{fontSize:11,padding:'4px 9px'}}>
-                <Ic n={copied?'ok':'copy'} s={13}/>&nbsp;{copied?'Copiado!':'Copiar'}
-              </button>
-              <button className="tb" title="Organizar espaçamento do código" onMouseDown={e=>e.preventDefault()} onClick={formatCode}
-                style={{fontSize:11,padding:'4px 9px'}}>Formatar</button>
-            </div>
-          </div>
-          <textarea
-            value={html} onChange={e=>setHtml(e.target.value)} spellCheck={false}
-            className="scroll"
-            style={{flex:1,width:'100%',padding:16,fontSize:12,lineHeight:1.75,
-              background:'var(--codebg)',color:'var(--codetx)',
-              outline:'none',resize:'none',border:'none',
-              fontFamily:"'JetBrains Mono',monospace"}}
-          />
-        </div>
+                        {/* COL 1: Código */}
+                        <div className="col" style={{ flex: curL.f[0], borderRight: '1.5px solid var(--bd)' }}>
+                            <div className="col-hdr">
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}><Ic n="code" s={14} /> Código HTML</span>
+                                <div style={{ display: 'flex', gap: 4 }}>
+                                    <button className="tb" title="Copiar código HTML" onMouseDown={e => e.preventDefault()} onClick={handleCopy}
+                                        style={{ fontSize: 11, padding: '4px 9px' }}>
+                                        <Ic n={copied ? 'ok' : 'copy'} s={13} />&nbsp;{copied ? 'Copiado!' : 'Copiar'}
+                                    </button>
+                                    <button className="tb" title="Organizar espaçamento do código" onMouseDown={e => e.preventDefault()} onClick={formatCode}
+                                        style={{ fontSize: 11, padding: '4px 9px' }}>Formatar</button>
+                                </div>
+                            </div>
+                            <textarea
+                                value={html} onChange={e => setHtml(e.target.value)} spellCheck={false}
+                                className="scroll"
+                                style={{
+                                    flex: 1, width: '100%', padding: 16, fontSize: 12, lineHeight: 1.75,
+                                    background: 'var(--codebg)', color: 'var(--codetx)',
+                                    outline: 'none', resize: 'none', border: 'none',
+                                    fontFamily: "'JetBrains Mono',monospace"
+                                }}
+                            />
+                        </div>
 
-        {/* COL 2: Editor Visual */}
-        <div className="col" style={{flex:curL.f[1],borderRight:'1.5px solid var(--bd)',background:'var(--bg2)'}}>
-          {/* Toolbar */}
-          <div style={{padding:'6px 10px',background:'var(--tbr)',borderBottom:'1.5px solid var(--bd)',display:'flex',flexWrap:'wrap',gap:4,alignItems:'center',flexShrink:0}}
-            onClick={e=>e.stopPropagation()}>
+                        {/* COL 2: Editor Visual */}
+                        <div className="col" style={{ flex: curL.f[1], borderRight: '1.5px solid var(--bd)', background: 'var(--bg2)' }}>
+                            {/* Toolbar */}
+                            <div style={{ padding: '6px 10px', background: 'var(--tbr)', borderBottom: '1.5px solid var(--bd)', display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center', flexShrink: 0 }}
+                                onClick={e => e.stopPropagation()}>
 
-            <B n="undo" tip="Desfazer (Ctrl+Z)" onClick={()=>exec('undo')}/>
-            <B n="redo" tip="Refazer (Ctrl+Y)"  onClick={()=>exec('redo')}/>
-            <Sep/>
+                                <B n="undo" tip="Desfazer (Ctrl+Z)" onClick={() => exec('undo')} />
+                                <B n="redo" tip="Refazer (Ctrl+Y)" onClick={() => exec('redo')} />
+                                <Sep />
 
-            <select className="tbs" title="Trocar a Fonte" onMouseDown={e=>e.stopPropagation()} onChange={e=>exec('fontName',e.target.value)}>
-              <option value="">Fonte…</option>
-              {['Arial','Georgia','Times New Roman','Verdana','Courier New','Trebuchet MS','Impact','Comic Sans MS'].map(f=>(
-                <option key={f} value={f}>{f}</option>
-              ))}
-            </select>
-            <select className="tbs" title="Tamanho da Fonte" onMouseDown={e=>e.stopPropagation()} onChange={e=>exec('fontSize',e.target.value)} style={{width:60}}>
-              <option value="">Tam</option>
-              {[1,2,3,4,5,6,7].map(n=><option key={n} value={n}>{n}</option>)}
-            </select>
-            <Sep/>
+                                <select className="tbs" title="Trocar a Fonte" onMouseDown={e => e.stopPropagation()} onChange={e => exec('fontName', e.target.value)}>
+                                    <option value="">Fonte…</option>
+                                    {['Arial', 'Georgia', 'Times New Roman', 'Verdana', 'Courier New', 'Trebuchet MS', 'Impact', 'Comic Sans MS'].map(f => (
+                                        <option key={f} value={f}>{f}</option>
+                                    ))}
+                                </select>
+                                <select className="tbs" title="Tamanho da Fonte" onMouseDown={e => e.stopPropagation()} onChange={e => exec('fontSize', e.target.value)} style={{ width: 60 }}>
+                                    <option value="">Tam</option>
+                                    {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{n}</option>)}
+                                </select>
+                                <Sep />
 
-            <B n="bold"   tip="Negrito (Ctrl+B)"    onClick={()=>exec('bold')}/>
-            <B n="italic" tip="Itálico (Ctrl+I)"    onClick={()=>exec('italic')}/>
-            <B n="under"  tip="Sublinhado (Ctrl+U)" onClick={()=>exec('underline')}/>
-            <B n="strike" tip="Tachado"             onClick={()=>exec('strikeThrough')}/>
-            <B n="sub"    tip="Subscrito"           onClick={()=>exec('subscript')}/>
-            <B n="sup"    tip="Sobrescrito"         onClick={()=>exec('superscript')}/>
-            <Sep/>
+                                <B n="bold" tip="Negrito (Ctrl+B)" onClick={() => exec('bold')} />
+                                <B n="italic" tip="Itálico (Ctrl+I)" onClick={() => exec('italic')} />
+                                <B n="under" tip="Sublinhado (Ctrl+U)" onClick={() => exec('underline')} />
+                                <B n="strike" tip="Tachado" onClick={() => exec('strikeThrough')} />
+                                <B n="sub" tip="Subscrito" onClick={() => exec('subscript')} />
+                                <B n="sup" tip="Sobrescrito" onClick={() => exec('superscript')} />
+                                <Sep />
 
-            {/* Cor texto e Fundo: Rótulos mais claros */}
-            <div style={{position:'relative'}}>
-              <B n="pal" lbl="Cor" tip="Cor do texto" on={pop==='txc'} onClick={()=>togglePop('txc')}/>
-              {pop==='txc' && <ColorPop onColor={handleTxColor}/>}
-            </div>
-            <div style={{position:'relative'}}>
-              <B n="pal" lbl="Fundo" tip="Cor de Destaque/fundo" on={pop==='bgc'} onClick={()=>togglePop('bgc')}/>
-              {pop==='bgc' && <ColorPop onColor={handleBgColor}/>}
-            </div>
+                                {/* Cor texto e Fundo: Rótulos mais claros */}
+                                <div style={{ position: 'relative' }}>
+                                    <B n="pal" lbl="Cor" tip="Cor do texto" on={pop === 'txc'} onClick={() => togglePop('txc')} />
+                                    {pop === 'txc' && <ColorPop onColor={handleTxColor} />}
+                                </div>
+                                <div style={{ position: 'relative' }}>
+                                    <B n="pal" lbl="Fundo" tip="Cor de Destaque/fundo" on={pop === 'bgc'} onClick={() => togglePop('bgc')} />
+                                    {pop === 'bgc' && <ColorPop onColor={handleBgColor} />}
+                                </div>
 
-            <B n="eraser" tip="Remover formatação" onClick={()=>exec('removeFormat')}/>
-            <Sep/>
+                                <B n="eraser" tip="Remover formatação" onClick={() => exec('removeFormat')} />
+                                <Sep />
 
-            {/* Títulos formatados de maneira padrão que leigos entendem */}
-            <B lbl="H1" tip="Título Principal (H1)" onClick={()=>exec('formatBlock','h1')}/>
-            <B lbl="H2" tip="Subtítulo Grande (H2)" onClick={()=>exec('formatBlock','h2')}/>
-            <B lbl="H3" tip="Subtítulo Médio (H3)"  onClick={()=>exec('formatBlock','h3')}/>
-            <B lbl="H4" tip="Subtítulo Pequeno (H4)" onClick={()=>exec('formatBlock','h4')}/>
-            <B lbl="P"  tip="Parágrafo Normal"       onClick={()=>exec('formatBlock','p')}/>
-            <Sep/>
+                                {/* Títulos formatados de maneira padrão que leigos entendem */}
+                                <B lbl="H1" tip="Título Principal (H1)" onClick={() => exec('formatBlock', 'h1')} />
+                                <B lbl="H2" tip="Subtítulo Grande (H2)" onClick={() => exec('formatBlock', 'h2')} />
+                                <B lbl="H3" tip="Subtítulo Médio (H3)" onClick={() => exec('formatBlock', 'h3')} />
+                                <B lbl="H4" tip="Subtítulo Pequeno (H4)" onClick={() => exec('formatBlock', 'h4')} />
+                                <B lbl="P" tip="Parágrafo Normal" onClick={() => exec('formatBlock', 'p')} />
+                                <Sep />
 
-            <B n="al" tip="Alinhar esquerda"  onClick={()=>exec('justifyLeft')}/>
-            <B n="ac" tip="Centralizar"       onClick={()=>exec('justifyCenter')}/>
-            <B n="ar" tip="Alinhar direita"   onClick={()=>exec('justifyRight')}/>
-            <B n="aj" tip="Justificar"        onClick={()=>exec('justifyFull')}/>
-            <Sep/>
+                                <B n="al" tip="Alinhar esquerda" onClick={() => exec('justifyLeft')} />
+                                <B n="ac" tip="Centralizar" onClick={() => exec('justifyCenter')} />
+                                <B n="ar" tip="Alinhar direita" onClick={() => exec('justifyRight')} />
+                                <B n="aj" tip="Justificar" onClick={() => exec('justifyFull')} />
+                                <Sep />
 
-            <B n="ul" tip="Lista com marcadores" onClick={()=>exec('insertUnorderedList')}/>
-            <B n="ol" tip="Lista numerada"       onClick={()=>exec('insertOrderedList')}/>
-            <B n="qt" tip="Citação (Bloco de texto destacado)" onClick={insertBQ}/>
-            <B n="hr" tip="Linha separadora horizontal"        onClick={insertHR}/>
-            <Sep/>
+                                <B n="ul" tip="Lista com marcadores" onClick={() => exec('insertUnorderedList')} />
+                                <B n="ol" tip="Lista numerada" onClick={() => exec('insertOrderedList')} />
+                                <B n="qt" tip="Citação (Bloco de texto destacado)" onClick={insertBQ} />
+                                <B n="hr" tip="Linha separadora horizontal" onClick={insertHR} />
+                                <Sep />
 
-            <B n="lnk" tip="Inserir Link"   onClick={insertLink}/>
-            <B n="img" tip="Inserir Imagem" onClick={insertImg}/>
-            <B n="tbl" tip="Inserir Tabela" onClick={insertTable}/>
-            <Sep/>
+                                <B n="lnk" tip="Inserir Link" onClick={insertLink} />
+                                <B n="img" tip="Inserir Imagem" onClick={insertImg} />
+                                <B n="tbl" tip="Inserir Tabela" onClick={insertTable} />
+                                <Sep />
 
-            {/* Emojis */}
-            <div style={{position:'relative'}}>
-              <B n="emoji" tip="Adicionar Emojis" on={pop==='em'} onClick={()=>togglePop('em')}/>
-              {pop==='em' && (
-                <div className="pop" style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3,width:250,maxHeight:210,overflowY:'auto'}}>
-                  {EMOJIS.map((em,i)=>(
-                    <button key={i} title={em} onClick={()=>insertChar(em)}
-                      style={{fontSize:18,padding:3,border:'none',background:'transparent',cursor:'pointer',borderRadius:5,textAlign:'center'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='transparent'}>{em}</button>
-                  ))}
+                                {/* Emojis */}
+                                <div style={{ position: 'relative' }}>
+                                    <B n="emoji" tip="Adicionar Emojis" on={pop === 'em'} onClick={() => togglePop('em')} />
+                                    {pop === 'em' && (
+                                        <div className="pop" style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 3, width: 250, maxHeight: 210, overflowY: 'auto' }}>
+                                            {EMOJIS.map((em, i) => (
+                                                <button key={i} title={em} onClick={() => insertChar(em)}
+                                                    style={{ fontSize: 18, padding: 3, border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: 5, textAlign: 'center' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'}
+                                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>{em}</button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Símbolos musicais */}
+                                <div style={{ position: 'relative' }}>
+                                    <B n="music" tip="Adicionar Símbolos Musicais" on={pop === 'mu'} onClick={() => togglePop('mu')} />
+                                    {pop === 'mu' && (
+                                        <div className="pop pop-r" style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 2, width: 270, maxHeight: 230, overflowY: 'auto' }}>
+                                            {MUSIC.map((s, i) => (
+                                                <button key={i} title={s} onClick={() => insertChar(s)}
+                                                    style={{ fontSize: 14, padding: 3, border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: 5, textAlign: 'center', fontFamily: 'serif,sans-serif' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'}
+                                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>{s}</button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                            </div>{/* /toolbar */}
+
+                            {/* Área de edição */}
+                            <iframe ref={visRef}
+                                className="scroll"
+                                style={{ width: '100%', border: 'none', background: 'var(--bg2)', minHeight: 0 }}
+                                title="Editor Visual"
+                            />
+                        </div>
+
+                        {/* COL 3: Pré-visualização (CORRIGIDO PARA PC E RENOMEADO) */}
+                        <div className="col" style={{ flex: curL.f[2], background: 'var(--bg)' }}>
+                            <div className="col-hdr">
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}><Ic n="mon" s={14} /> Pré-visualização</span>
+                                <div style={{ display: 'flex', gap: 3, background: 'var(--bg)', padding: 3, borderRadius: 9, border: '1.5px solid var(--bd)' }}>
+                                    {[['desktop', 'mon', '💻 PC'], ['mobile', 'mob', '📱 CEL']].map(([d, ico, lbl]) => (
+                                        <button key={d} title={`Visualizar em formato ${lbl}`} onClick={() => setDevice(d)}
+                                            style={{
+                                                padding: '4px 11px', borderRadius: 7, border: 'none', fontSize: 11, fontWeight: 800, cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', gap: 4,
+                                                background: device === d ? 'var(--acc)' : 'transparent',
+                                                color: device === d ? '#fff' : 'var(--tx2)'
+                                            }}>
+                                            {lbl}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Container adaptado. Flex:1 e alignItems:'stretch' para garantir que não haja cortes em PC */}
+                            <div style={{
+                                flex: 1,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: device === 'mobile' ? 'flex-start' : 'stretch',
+                                padding: 16,
+                                background: 'var(--bg)',
+                                overflowY: device === 'mobile' ? 'auto' : 'hidden'
+                            }}>
+                                <div style={{
+                                    transition: 'all .4s cubic-bezier(.4,0,.2,1)',
+                                    background: dark ? '#1a1730' : '#fff',
+                                    boxShadow: '0 4px 28px rgba(0,0,0,.15)',
+                                    ...(device === 'mobile'
+                                        ? { width: 340, height: 620, border: '12px solid #5a5360', borderRadius: '2.5rem', overflow: 'hidden', flexShrink: 0 }
+                                        : { flex: 1, width: '100%', border: '1.5px solid var(--bd)', borderRadius: 10, overflow: 'hidden' })
+                                }}>
+                                    <iframe ref={iframeRef} style={{ width: '100%', height: '100%', border: 'none', display: 'block' }} title="Pré-visualização do conteúdo" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>{/* /main */}
+
+                    {/* FOOTER */}
+                    <footer className="ftr">
+                        <span style={{ fontWeight: 700 }}>Desenvolvido pelo prof. Glauber Santiago — DAC/UFSCar</span>
+                        <div style={{ display: 'flex', gap: 16 }}>
+                            <a href="https://servidores.ufscar.br/glauber/" target="_blank">servidores.ufscar.br/glauber/</a>
+                            <a href="https://sites.google.com/view/glauberia" target="_blank">sites.google.com/view/glauberia</a>
+                        </div>
+                    </footer>
+
+                    {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+
                 </div>
-              )}
-            </div>
+            );
+        }
 
-            {/* Símbolos musicais */}
-            <div style={{position:'relative'}}>
-              <B n="music" tip="Adicionar Símbolos Musicais" on={pop==='mu'} onClick={()=>togglePop('mu')}/>
-              {pop==='mu' && (
-                <div className="pop pop-r" style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:2,width:270,maxHeight:230,overflowY:'auto'}}>
-                  {MUSIC.map((s,i)=>(
-                    <button key={i} title={s} onClick={()=>insertChar(s)}
-                      style={{fontSize:14,padding:3,border:'none',background:'transparent',cursor:'pointer',borderRadius:5,textAlign:'center',fontFamily:'serif,sans-serif'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='transparent'}>{s}</button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-          </div>{/* /toolbar */}
-
-          {/* Área de edição */}
-          <div ref={visRef} contentEditable onInput={onInput} onMouseUp={saveR} onKeyUp={saveR}
-            suppressContentEditableWarning className="ec scroll"
-            style={{padding:'22px 28px',outline:'none',color:'var(--tx)',background:'var(--bg2)',lineHeight:1.7,fontSize:14}}
-          />
-        </div>
-
-        {/* COL 3: Pré-visualização (CORRIGIDO PARA PC E RENOMEADO) */}
-        <div className="col" style={{flex:curL.f[2],background:'var(--bg)'}}>
-          <div className="col-hdr">
-            <span style={{display:'flex',alignItems:'center',gap:7}}><Ic n="mon" s={14}/> Pré-visualização</span>
-            <div style={{display:'flex',gap:3,background:'var(--bg)',padding:3,borderRadius:9,border:'1.5px solid var(--bd)'}}>
-              {[['desktop','mon','💻 PC'],['mobile','mob','📱 CEL']].map(([d,ico,lbl])=>(
-                <button key={d} title={`Visualizar em formato ${lbl}`} onClick={()=>setDevice(d)}
-                  style={{padding:'4px 11px',borderRadius:7,border:'none',fontSize:11,fontWeight:800,cursor:'pointer',
-                    display:'flex',alignItems:'center',gap:4,
-                    background:device===d?'var(--acc)':'transparent',
-                    color:device===d?'#fff':'var(--tx2)'}}>
-                  {lbl}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Container adaptado. Flex:1 e alignItems:'stretch' para garantir que não haja cortes em PC */}
-          <div style={{ 
-            flex: 1, 
-            display:'flex', 
-            justifyContent:'center', 
-            alignItems: device === 'mobile' ? 'flex-start' : 'stretch', 
-            padding: 16, 
-            background: 'var(--bg)',
-            overflowY: device === 'mobile' ? 'auto' : 'hidden' 
-          }}>
-            <div style={{
-              transition:'all .4s cubic-bezier(.4,0,.2,1)',
-              background:dark?'#1a1730':'#fff',
-              boxShadow:'0 4px 28px rgba(0,0,0,.15)',
-              ...(device==='mobile'
-                ? {width:340, height:620, border:'12px solid #5a5360', borderRadius:'2.5rem', overflow:'hidden', flexShrink:0}
-                : {flex: 1, width:'100%', border:'1.5px solid var(--bd)', borderRadius:10, overflow:'hidden'})
-            }}>
-              <iframe ref={iframeRef} style={{width:'100%',height:'100%',border:'none',display:'block'}} title="Pré-visualização do conteúdo"/>
-            </div>
-          </div>
-        </div>
-
-      </div>{/* /main */}
-
-      {/* FOOTER */}
-      <footer className="ftr">
-        <span style={{fontWeight:700}}>Desenvolvido pelo prof. Glauber Santiago — DAC/UFSCar</span>
-        <div style={{display:'flex',gap:16}}>
-          <a href="https://servidores.ufscar.br/glauber/" target="_blank">servidores.ufscar.br/glauber/</a>
-          <a href="https://sites.google.com/view/glauberia" target="_blank">sites.google.com/view/glauberia</a>
-        </div>
-      </footer>
-
-      {showHelp && <HelpModal onClose={()=>setShowHelp(false)}/>}
-
-    </div>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-</script>
-  <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('GlauWeb PWA Ativo!'))
-      .catch(err => console.log('Erro no PWA:', err));
-  }
-</script>
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('GlauWeb PWA Ativo!'))
+                .catch(err => console.log('Erro no PWA:', err));
+        }
+    </script>
 </body>
+
 </html>
