@@ -439,6 +439,86 @@
             font-weight: 800;
             transition: all .13s
         }
+
+        /* MOBILE TABS (CSS Only Logic for Flex Layout) */
+        .m-tabs {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .hdr {
+                padding: 10px;
+                gap: 8px;
+            }
+
+            .hdr>div {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .m-tabs {
+                display: flex;
+                background: var(--hdr);
+                border-bottom: 1.5px solid var(--bd);
+                flex-shrink: 0;
+            }
+
+            .m-tabs button {
+                flex: 1;
+                padding: 12px 0;
+                background: transparent;
+                border: none;
+                border-right: 1.5px solid var(--bd);
+                color: var(--tx2);
+                font-family: 'Nunito', sans-serif;
+                font-weight: 800;
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                cursor: pointer;
+            }
+
+            .m-tabs button:last-child {
+                border-right: none
+            }
+
+            .m-tabs button.on {
+                background: var(--bg3);
+                color: var(--acc);
+                box-shadow: inset 0 -3px 0 var(--acc);
+            }
+
+            /* Responsive columns via JS state */
+            .main.m-tab-0 .col:nth-child(2),
+            .main.m-tab-0 .col:nth-child(3) {
+                display: none !important;
+            }
+
+            .main.m-tab-1 .col:nth-child(1),
+            .main.m-tab-1 .col:nth-child(3) {
+                display: none !important;
+            }
+
+            .main.m-tab-2 .col:nth-child(1),
+            .main.m-tab-2 .col:nth-child(2) {
+                display: none !important;
+            }
+
+            .col {
+                flex: 1 !important;
+                border-right: none !important;
+            }
+
+            /* Fix preview size on mobile */
+            .col:nth-child(3)>div:last-child>div {
+                width: 100% !important;
+                height: 100% !important;
+                border-radius: 12px !important;
+                border: 1.5px solid var(--bd) !important;
+            }
+        }
     </style>
 </head>
 
@@ -640,6 +720,7 @@
             const [showHelp, setShowHelp] = useState(false);
             const [pop, setPop] = useState(''); // 'txc'|'bgc'|'em'|'mu'|''
             const [copied, setCopied] = useState(false);
+            const [mTab, setMTab] = useState(1); // 0=HTML, 1=Editor, 2=Prévia
 
             const visRef = useRef(null);
             const iframeRef = useRef(null);
@@ -770,51 +851,51 @@ img { max-width: 100%; height: auto }
                 win.focus();
             };
 
-            const exec = (cmd, val = null) => { 
-                restoreR(); 
+            const exec = (cmd, val = null) => {
+                restoreR();
                 const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
-                if(doc) {
-                    doc.execCommand(cmd, false, val); 
+                if (doc) {
+                    doc.execCommand(cmd, false, val);
                     updating.current = true;
                     setHtml(doc.body.innerHTML);
                     setTimeout(() => { updating.current = false; }, 10);
-                    saveR(); 
+                    saveR();
                 }
             };
             const closePop = () => setPop('');
             const togglePop = name => { saveR(); setPop(p => p === name ? '' : name); };
 
-            const handleTxColor = c => { 
+            const handleTxColor = c => {
                 const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
-                if(doc) doc.execCommand('styleWithCSS', false, true); 
-                exec('foreColor', c); closePop(); 
+                if (doc) doc.execCommand('styleWithCSS', false, true);
+                exec('foreColor', c); closePop();
             };
-            const handleBgColor = c => { 
+            const handleBgColor = c => {
                 const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
-                if(doc) doc.execCommand('styleWithCSS', false, true); 
-                exec('hiliteColor', c); closePop(); 
+                if (doc) doc.execCommand('styleWithCSS', false, true);
+                exec('hiliteColor', c); closePop();
             };
-            const insertChar = c => { 
-                restoreR(); 
+            const insertChar = c => {
+                restoreR();
                 const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
-                if(doc) doc.execCommand('insertText', false, c); 
-                if(doc) {
+                if (doc) doc.execCommand('insertText', false, c);
+                if (doc) {
                     updating.current = true;
                     setHtml(doc.body.innerHTML);
                     setTimeout(() => { updating.current = false; }, 10);
                 }
-                closePop(); 
+                closePop();
             };
 
             const insertLink = () => { const u = prompt('URL do link:', 'https://'); if (u) exec('createLink', u); };
             const insertImg = () => { const u = prompt('URL da imagem:', 'https://'); if (u) exec('insertHTML', `<img src="${u}" style="max-width:100%;height:auto" alt=""/>`); };
             const insertTable = () => exec('insertHTML', '<table><thead><tr><th>Coluna 1</th><th>Coluna 2</th><th>Coluna 3</th></tr></thead><tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table>');
             const insertHR = () => exec('insertHTML', '<hr/>');
-            const insertBQ = () => { 
-                restoreR(); 
+            const insertBQ = () => {
+                restoreR();
                 const doc = visRef.current?.contentDocument || visRef.current?.contentWindow?.document;
-                if(doc) doc.execCommand('formatBlock', false, 'blockquote'); 
-                if(doc) {
+                if (doc) doc.execCommand('formatBlock', false, 'blockquote');
+                if (doc) {
                     updating.current = true;
                     setHtml(doc.body.innerHTML);
                     setTimeout(() => { updating.current = false; }, 10);
@@ -934,8 +1015,21 @@ ${html}
                         </div>
                     </header>
 
+                    {/* TABS MOBILE (Visível apenas css < 768px) */}
+                    <div className="m-tabs">
+                        <button className={mTab === 0 ? 'on' : ''} onClick={() => setMTab(0)}>
+                            <Ic n="code" s={16} /> HTML
+                        </button>
+                        <button className={mTab === 1 ? 'on' : ''} onClick={() => setMTab(1)}>
+                            <Ic n="pal" s={16} /> Editor
+                        </button>
+                        <button className={mTab === 2 ? 'on' : ''} onClick={() => setMTab(2)}>
+                            <Ic n="mon" s={16} /> Prévia
+                        </button>
+                    </div>
+
                     {/* MAIN — 3 colunas */}
-                    <div className="main">
+                    <div className={`main m-tab-${mTab}`}>
 
                         {/* COL 1: Código */}
                         <div className="col" style={{ flex: curL.f[0], borderRight: '1.5px solid var(--bd)' }}>
